@@ -1,13 +1,15 @@
 import sqlite3
 
-conn = sqlite3.connect(name + ".db") 
-q = conn.cursor() #let's us execute queries
+conn = sqlite3.connect("class-scheduler\data\classes.db")
+q = conn.cursor()
+
+#Insert TMS classes into classes.db
 
 
 def create_table(name):
     """Initializes table of with a certain name"""
     q.execute("""CREATE TABLE """ + name + """ (
-        
+
     )""")
     conn.commit()
     conn.close()

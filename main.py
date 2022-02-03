@@ -2,7 +2,6 @@ import fuzzy_finding
 import tms_scraper
 
 def main():
-    #insert into database the data for each class after scraped
     pass
 
 
@@ -11,5 +10,5 @@ def getCourseInfo(course_title):
     pass
 
 
-if __name__ = "__main__":
+if __name__ == "__main__":
     main()
