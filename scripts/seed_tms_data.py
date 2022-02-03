@@ -20,13 +20,11 @@ with open('../data/tms_data.csv', newline='') as csvfile:
         instructor = row[13]
 
         # Create table
-        connection = sqlite3.connect("classes.db")
+        connection = sqlite3.connect("courses.db")
         cursor = connection.cursor()
-        # TODO
-        cursor.execute(f"CREATE TABLE courses (name TEXT, species TEXT, tank_number INTEGER)")
+        cursor.execute(f"CREATE TABLE courses (subject_code TEXT, course_number TEXT, instruction_type TEXT, instruction_method TEXT, section TEXT, crn_url TEXT, crn TEXT, course_title TEXT, days TEXT, times TEXT, finals_day TEXT, finals_time TEXT, instructor TEXT)")
 
         # Insert table
-        # TODO
-        q.execute("INSERT INTO _____ VALUES ()")
+        cursor.execute(f"INSERT INTO courses VALUES ('{subject_code}', '{course_number}', '{instruction_type}', '{instruction_method}', '{section}', '{crn_url}', '{crn}', '{course_title}', '{days}', '{times}', '{finals_day}', '{finals_time}', '{instructor}')")
         conn.commit()
         conn.close()
