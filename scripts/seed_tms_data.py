@@ -1,7 +1,7 @@
 import sqlite3
 import csv
 
-with open('../data/tms_data.csv', newline='') as csvfile:
+with open('../data/winter-tms.csv', newline='') as csvfile:
     spamreader = csv.reader(csvfile, delimiter=' ', quotechar='|')
     for i, row in enumerate(spamreader):
         if (i == 0): continue
