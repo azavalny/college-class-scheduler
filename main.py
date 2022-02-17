@@ -7,8 +7,7 @@ def main():
     title = input()
     query = getCoursesAndInfo(title, conn)
     print(query)
-    #print("The course titles have a " + str(fuzz.token_sort_ratio(title, query[0][7])) + "% Similarity") #fuzzy demo
-
+  
 def getCoursesAndInfo(title, conn):
     """Returns course information of courses that share the same title as inputted. If no matches are found, fuzzy finding is implemented to look for the course with the most similar title to what the user entered"""
     q = conn.cursor()
@@ -18,10 +17,6 @@ def getCoursesAndInfo(title, conn):
 
     q.execute("SELECT course_title from courses")
     all_course_titles = q.fetchall()
-
-    print(type(all_course_titles))#debugging
-    print(len(all_course_titles))# #titles of all courses
-    print(all_course_titles[0][0])#
 
     if len(rows) == 0:
         similarity = 80
