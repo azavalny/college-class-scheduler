@@ -13,18 +13,18 @@ def populate_fake_data():
     busy3 = datetime.datetime(year=friday.year, month=friday.month, day=friday.day, hour=10, minute=00)
     busy4 = datetime.datetime(year=wednesday.year, month=wednesday.month, day=wednesday.day, hour=14, minute=30)
 
-    courses = ["CS 171"]
-            #, "CI 102"]
+    courses = ["CS 171", "CI 102", "CS 164", "ENGL 103"]
     constraints = {
         "no_classes_during_time_interval": [0.8, [[busy1, busy2], [busy3, busy4]]],
-        "longer_classes": [0.2, True],
-        "preferred_class_gap_interval": [0.1, 5],
+        "longer_classes": [0., True],
+        "preferred_class_gap_interval": [0.2, 5],
     }
     return courses, constraints
 
 # Input: '02:00 pm - 02:50 pm'
 # Output: [14, 0, 14, 50]
 def parse_time(date):
+    if (date == "TBD"): return [0, 0, 0, 0]
     result = []
     times = date.split(" - ")
     for time in times:
@@ -39,52 +39,75 @@ def parse_time(date):
     return result
 # parse_time('02:00 pm - 02:50 pm')
 
-# ('CI', '102', 'Lecture', 'Face To Face', 'F', 'https://termmasterschedule.drexel.edu/webtms_du/courseDetails/25110?crseNumb=102', '25110', 'Computing and Informatics Design II', 'T', '02:00 pm - 02:50 pm', '', '', 'Dave H Augenblick')
-# - No overlapping courses
-def violates_hard_constraints(schedule):
+def get_time_intervals(schedule):
     classes_timedelta = {
+            "Su": -1,
             "M": 0,
             "T": 1,
             "W": 2,
             "R": 3,
             "F": 4,
+            "S": 5,
     }
     today = datetime.date.today()
     intervals = []
     for classes in schedule:
-        class_day = today + datetime.timedelta((classes_timedelta[classes[8]]-today.weekday()) % 7)
-        parsed_times = parse_time(classes[9])
-        start = datetime.datetime(year=class_day.year, month=class_day.month, day=class_day.day, hour=parsed_times[0], minute=parsed_times[1])
-        end = datetime.datetime(year=class_day.year, month=class_day.month, day=class_day.day, hour=parsed_times[2], minute=parsed_times[3])
-        intervals.append([start, end])
+        if classes[8] == "TBD": classes[8] = "S"
+        for day in list(classes[8]):
+            class_day = today + datetime.timedelta((classes_timedelta[day]-today.weekday()) % 7)
+            parsed_times = parse_time(classes[9])
+            start = datetime.datetime(year=class_day.year, month=class_day.month, day=class_day.day, hour=parsed_times[0], minute=parsed_times[1])
+            end = datetime.datetime(year=class_day.year, month=class_day.month, day=class_day.day, hour=parsed_times[2], minute=parsed_times[3])
+            intervals.append([start, end])
     # sort by start time
     intervals = sorted(intervals, key=lambda x: x[0])
+    return intervals
+
+
+# ('CI', '102', 'Lecture', 'Face To Face', 'F', 'https://termmasterschedule.drexel.edu/webtms_du/courseDetails/25110?crseNumb=102', '25110', 'Computing and Informatics Design II', 'T', '02:00 pm - 02:50 pm', '', '', 'Dave H Augenblick')
+# - No overlapping courses
+def violates_hard_constraints(schedule):
+    intervals = get_time_intervals(schedule)
     for x in range(1,len(intervals)):
         if intervals[x-1][1] > intervals[x][0]:
-            print("{0} overlaps with {1}".format(intervals[x-1], intervals[x]))
+            # print("{0} overlaps with {1}".format(intervals[x-1], intervals[x]))
             return True
     return False
 
-# TODO
-def no_classes_during_time_interval_violations(schedule, soft_constraint_violations):
-    return 2
+# (array(['CS', '171', 'Lab', 'Face To Face', '060',
+#        'https://termmasterschedule.drexel.edu/webtms_du/courseDetails/22365?crseNumb=171',
+#        '22365', 'Computer Programming I', 'W', '09:00 am - 10:50 am', '',
+#        '', 'Mark W Boady, Adelaida A Medlock'], dtype='<U80'), array(['CS', '171', 'Lecture', 'Face To Face', 'A',
+#        'https://termmasterschedule.drexel.edu/webtms_du/courseDetails/22374?crseNumb=171',
+#        '22374', 'Computer Programming I', 'M', '11:00 am - 12:50 pm',
+#        'Mar 15, 2022', 'Final Exam:\n08:00 am - 10:00 am', 'Mark W Boady'],
+#       dtype='<U80'))
+def no_classes_during_time_interval_violations(schedule, constraints):
+    time_restrictions = constraints["no_classes_during_time_interval"][1]
+    time_restrictions = sorted(time_restrictions, key=lambda x: x[0])
+    time_intervals = get_time_intervals(schedule)
+    hours_overlap = 0
+    for restriction in time_restrictions:
+        for interval in time_intervals:
+            hours_overlap += max((min(interval[0], restriction[0]) - max(interval[1], restriction[1])).total_seconds() / 60, 0)
+    return hours_overlap
 
 # TODO
-def longer_classes_violations(schedule, soft_constraint_violations):
-    return 2
+def longer_classes_violations(schedule, constraints):
+    return 0
 
 # TODO
-def preferred_class_gap_interval_violations(schedule, soft_constraint_violations):
+def preferred_class_gap_interval_violations(schedule, constraints):
     return 2
 
 def get_soft_constraint_violations(schedule, constraints):
     soft_constraint_violations = {}
     if constraints["no_classes_during_time_interval"][0] > 0:
-        soft_constraint_violations["no_classes_during_time_interval"] = no_classes_during_time_interval_violations(schedule, soft_constraint_violations)
+        soft_constraint_violations["no_classes_during_time_interval"] = no_classes_during_time_interval_violations(schedule, constraints)
     if constraints["longer_classes"][0] > 0:
-        soft_constraint_violations["longer_classes"] = longer_classes_violations(schedule, soft_constraint_violations)
+        soft_constraint_violations["longer_classes"] = longer_classes_violations(schedule, constraints)
     if constraints["preferred_class_gap_interval"][0] > 0:
-        soft_constraint_violations["preferred_class_gap_interval"] = preferred_class_gap_interval_violations(schedule, soft_constraint_violations)
+        soft_constraint_violations["preferred_class_gap_interval"] = preferred_class_gap_interval_violations(schedule, constraints)
     return soft_constraint_violations
 
 def fitness(schedule, constraints, max_fitness=100):
