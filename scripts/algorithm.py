@@ -90,7 +90,7 @@ def get_time_intervals(schedule):
 
 # ('CI', '102', 'Lecture', 'Face To Face', 'F', 'https://termmasterschedule.drexel.edu/webtms_du/courseDetails/25110?crseNumb=102', '25110', 'Computing and Informatics Design II', 'T', '02:00 pm - 02:50 pm', '', '', 'Dave H Augenblick')
 # - No overlapping courses
-def violates_hard_constraints(schedule):
+def overlapping_classes_violations(schedule):
     # Get sorted time intervals by start time
     intervals = get_time_intervals(schedule)
     for x in range(1,len(intervals)):
@@ -123,24 +123,25 @@ def no_classes_during_time_interval_violations(schedule, constraints):
 def longer_classes_violations(schedule, constraints):
     return 0
 
-# TODO
 def preferred_class_gap_interval_violations(schedule, constraints):
     ideal_gap = constraints["preferred_class_gap_interval"][1]
-    return 2
+    time_intervals = get_time_intervals(schedule)
+    non_ideal_gap = 0 # in minutes
+    for i in range(1, len(time_intervals)):
+        gap = (time_intervals[i][0] - time_intervals[i-1][1]).total_seconds() / 60
+        non_ideal_gap += abs(non_ideal_gap - gap)
+    return non_ideal_gap
 
-def get_soft_constraint_violations(schedule, constraints):
-    constraint_violation_functions = {
-        "no_classes_during_time_interval": no_classes_during_time_interval_violations,
-        "longer_classes": longer_classes_violations,
-        "preferred_class_gap_interval": preferred_class_gap_interval_violations,
-    }
-    soft_constraint_violations = {name: constraint_violation_functions[name](schedule, constraints) if constraints[name][0] > 0 for name in constraints}
+def get_soft_constraint_violations(schedule, constraints, constraint_violation_functions):
+    soft_constraint_violations = {name: constraint_violation_functions["soft"][name](schedule, constraints) for name in constraints if constraints[name][0] > 0}
     return soft_constraint_violations
 
-def fitness(schedule, constraints, max_fitness=100):
+def fitness(schedule, constraints, constraint_violation_functions, max_fitness=100):
     # Return if violates any hard constraints
-    if violates_hard_constraints(schedule): return 0
-    soft_constraint_violations = get_soft_constraint_violations(schedule, constraints)
+    for hard_constraint in constraint_violation_functions["hard"]:
+        if constraint_violation_functions["hard"][hard_constraint](schedule):
+            return 0
+    soft_constraint_violations = get_soft_constraint_violations(schedule, constraints, constraint_violation_functions)
     fitness = max_fitness
     # Reduce the fitness by the number of violations and the weight of the violation
     for constraint in soft_constraint_violations:
@@ -164,6 +165,17 @@ def algorithm():
 
     # Get data
     courses, constraints = populate_fake_data()
+
+    constraint_violation_functions = {
+        "hard": {
+            "overlapping_classes": overlapping_classes_violations,
+        },
+        "soft": {
+            "no_classes_during_time_interval": no_classes_during_time_interval_violations,
+            "longer_classes": longer_classes_violations,
+            "preferred_class_gap_interval": preferred_class_gap_interval_violations,
+        },
+    }
 
     # Get all course sections from database
     all_sections = []
