@@ -18,8 +18,30 @@ def populate_fake_data():
         # constraint_name : [weight, data],
         "no_classes_during_time_interval": [0.8, [[busy1, busy2], [busy3, busy4]]],
         "longer_classes": [0., True],
-        "preferred_class_gap_interval": [0.2, 5],
+        "preferred_class_gap_interval": [0.2, 1 * 60],
     }
+    # Validate no_classes_during_time_interval
+    if not isinstance(constraints["no_classes_during_time_interval"][1], (list)):
+        print(f"Invalid type for no_classes_during_time_interval")
+        return
+    # Validate longer_classes value
+    if not isinstance(constraints["longer_classes"][1], (bool)):
+        print(f"Invalid type for longer_classes")
+        return
+    # Validate preferred_class_gap_interval value
+    gap_interval_possibilities = [10] + [hours * 60 for hours in range(1, 9)]
+    if constraints["preferred_class_gap_interval"][1] not in gap_interval_possibilities:
+        print("preferred_class_gap_interval not valid")
+        return
+    # Validate constraint weights
+    for constraint in constraints:
+        weight = constraints[constraint][0]
+        if not isinstance(weight, (float)):
+            print(f"{constraint} weight not valid")
+            return
+        if weight > 1.0 or weight < 0.0:
+            print(f"{constraint} weight out of bounds")
+            return
     return courses, constraints
 
 # Input: '02:00 pm - 02:50 pm'
@@ -103,8 +125,8 @@ def longer_classes_violations(schedule, constraints):
 
 # TODO
 def preferred_class_gap_interval_violations(schedule, constraints):
+    ideal_gap = constraints["preferred_class_gap_interval"][1]
     return 2
-
 
 def get_soft_constraint_violations(schedule, constraints):
     constraint_violation_functions = {
