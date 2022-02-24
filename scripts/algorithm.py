@@ -15,6 +15,7 @@ def populate_fake_data():
 
     courses = ["CS 171", "CI 102", "CS 164", "ENGL 103"]
     constraints = {
+        # constraint_name : [weight, data],
         "no_classes_during_time_interval": [0.8, [[busy1, busy2], [busy3, busy4]]],
         "longer_classes": [0., True],
         "preferred_class_gap_interval": [0.2, 5],
@@ -26,6 +27,7 @@ def populate_fake_data():
 def parse_time(date):
     if (date == "TBD"): return [0, 0, 0, 0]
     result = []
+    # Split into [start_time, end_time]
     times = date.split(" - ")
     for time in times:
         if time[-2:] == "pm":
@@ -54,23 +56,24 @@ def get_time_intervals(schedule):
     for classes in schedule:
         if classes[8] == "TBD": classes[8] = "S"
         for day in list(classes[8]):
+            # Parse each time interval
             class_day = today + datetime.timedelta((classes_timedelta[day]-today.weekday()) % 7)
             parsed_times = parse_time(classes[9])
             start = datetime.datetime(year=class_day.year, month=class_day.month, day=class_day.day, hour=parsed_times[0], minute=parsed_times[1])
             end = datetime.datetime(year=class_day.year, month=class_day.month, day=class_day.day, hour=parsed_times[2], minute=parsed_times[3])
             intervals.append([start, end])
-    # sort by start time
+    # Sort by start time
     intervals = sorted(intervals, key=lambda x: x[0])
     return intervals
-
 
 # ('CI', '102', 'Lecture', 'Face To Face', 'F', 'https://termmasterschedule.drexel.edu/webtms_du/courseDetails/25110?crseNumb=102', '25110', 'Computing and Informatics Design II', 'T', '02:00 pm - 02:50 pm', '', '', 'Dave H Augenblick')
 # - No overlapping courses
 def violates_hard_constraints(schedule):
+    # Get sorted time intervals by start time
     intervals = get_time_intervals(schedule)
     for x in range(1,len(intervals)):
+        # If the current interval overlaps with the previous, hard constraint violated
         if intervals[x-1][1] > intervals[x][0]:
-            # print("{0} overlaps with {1}".format(intervals[x-1], intervals[x]))
             return True
     return False
 
@@ -83,14 +86,16 @@ def violates_hard_constraints(schedule):
 #        'Mar 15, 2022', 'Final Exam:\n08:00 am - 10:00 am', 'Mark W Boady'],
 #       dtype='<U80'))
 def no_classes_during_time_interval_violations(schedule, constraints):
+    # Get and sort time restrictions by start time
     time_restrictions = constraints["no_classes_during_time_interval"][1]
     time_restrictions = sorted(time_restrictions, key=lambda x: x[0])
     time_intervals = get_time_intervals(schedule)
-    hours_overlap = 0
+    # Calculate number of hours time restrictions overlaps with class time intervals
+    overlap = 0 # in minutes
     for restriction in time_restrictions:
         for interval in time_intervals:
-            hours_overlap += max((min(interval[0], restriction[0]) - max(interval[1], restriction[1])).total_seconds() / 60, 0)
-    return hours_overlap
+            overlap += max((min(interval[0], restriction[0]) - max(interval[1], restriction[1])).total_seconds() / 60, 0)
+    return overlap
 
 # TODO
 def longer_classes_violations(schedule, constraints):
@@ -100,23 +105,23 @@ def longer_classes_violations(schedule, constraints):
 def preferred_class_gap_interval_violations(schedule, constraints):
     return 2
 
+
 def get_soft_constraint_violations(schedule, constraints):
-    soft_constraint_violations = {}
-    if constraints["no_classes_during_time_interval"][0] > 0:
-        soft_constraint_violations["no_classes_during_time_interval"] = no_classes_during_time_interval_violations(schedule, constraints)
-    if constraints["longer_classes"][0] > 0:
-        soft_constraint_violations["longer_classes"] = longer_classes_violations(schedule, constraints)
-    if constraints["preferred_class_gap_interval"][0] > 0:
-        soft_constraint_violations["preferred_class_gap_interval"] = preferred_class_gap_interval_violations(schedule, constraints)
+    constraint_violation_functions = {
+        "no_classes_during_time_interval": no_classes_during_time_interval_violations,
+        "longer_classes": longer_classes_violations,
+        "preferred_class_gap_interval": preferred_class_gap_interval_violations,
+    }
+    soft_constraint_violations = {name: constraint_violation_functions[name](schedule, constraints) if constraints[name][0] > 0 for name in constraints}
     return soft_constraint_violations
 
 def fitness(schedule, constraints, max_fitness=100):
+    # Return if violates any hard constraints
     if violates_hard_constraints(schedule): return 0
     soft_constraint_violations = get_soft_constraint_violations(schedule, constraints)
     fitness = max_fitness
-    for constraint in constraints:
-        if constraint not in soft_constraint_violations:
-            soft_constraint_violations[constraint] = 0
+    # Reduce the fitness by the number of violations and the weight of the violation
+    for constraint in soft_constraint_violations:
         fitness -= soft_constraint_violations[constraint] * constraints[constraint][0]
     return fitness
 
@@ -127,20 +132,24 @@ def fitness(schedule, constraints, max_fitness=100):
 # Returns all combinations
 # ex. [[1,2,3],[4,5,6],[7,8,9,10]] -> [[1,4,7],[1,4,8],...,[3,6,10]]
 def get_all_possible_schdeules(all_sections):
+    # Get all combinations of classes
     return list(itertools.product(*all_sections))
 
 def algorithm():
+    # Open SQL connection
     connection = sqlite3.connect("../data/courses.db")
     cursor = connection.cursor()
 
+    # Get data
     courses, constraints = populate_fake_data()
 
     # Get all course sections from database
-    courses_and_numbers = [x.split(" ") for x in courses]
     all_sections = []
-    for course_and_number in courses_and_numbers:
-        subject_code = course_and_number[0]
-        course_number = course_and_number[1]
+    for course in courses:
+        course_data = course.split(" ")
+        subject_code = course_data[0]
+        course_number = course_data[1]
+        # Get rows from database
         rows = cursor.execute(f'SELECT * FROM courses WHERE subject_code="{subject_code}" AND course_number="{course_number}"').fetchall()
         # Split course by type (ex. lecture, recitation, etc.)
         rows = np.array(rows)
@@ -159,11 +168,11 @@ def algorithm():
     print(f"Max Fitness: {max(fitnesses)}")
     best_schedule_index = fitnesses.index(max(fitnesses))
     print(f"Best Schedule: {schedules[best_schedule_index]}")
-    return
 
+    # Close SQL conneciton
     connection.commit()
     connection.close()
+    return
 
 if __name__ == "__main__":
     algorithm()
-    #print(1)
