@@ -123,10 +123,14 @@ def no_classes_during_time_interval_violations(schedule, constraints):
 def longer_classes_violations(schedule, constraints):
     return 0
 
-# TODO
 def preferred_class_gap_interval_violations(schedule, constraints):
     ideal_gap = constraints["preferred_class_gap_interval"][1]
-    return 2
+    time_intervals = get_time_intervals(schedule)
+    non_ideal_gap = 0 # in minutes
+    for i in range(1, len(time_intervals)):
+        gap = (time_intervals[i][0] - time_intervals[i-1][1]).total_seconds() / 60
+        non_ideal_gap += abs(non_ideal_gap - gap)
+    return non_ideal_gap
 
 def get_soft_constraint_violations(schedule, constraints):
     constraint_violation_functions = {
