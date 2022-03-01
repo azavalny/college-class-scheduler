@@ -7,8 +7,31 @@ from populate_fake_data import populate_fake_data
 from hard_constraints import overlapping_classes_violations
 from soft_constraints import no_classes_during_time_interval_violations, prefer_longer_classes_violations, preferred_class_gap_interval_violations
 
-def get_soft_constraint_violations(schedule, constraints, constraint_violation_functions, all_sections):
-    soft_constraint_violations = {name: constraint_violation_functions["soft"][name](schedule, constraints, all_sections) for name in constraints if constraints[name][0] > 0}
+"""
+User Input:
+courses = ["CS 171", "CI 102", "CS 164", "ENGL 103"]
+
+constraints = {
+    # constraint_name : [weight, data],
+    "no_classes_during_time_interval": [0.8, [[busy1, busy2], [busy3, busy4]]],
+    "prefer_longer_classes": [0., True],
+    "preferred_class_gap_interval": [0.2, 1 * 60],
+}
+
+Computed Values:
+schedule = [
+    ['CI', '102', 'Lecture', 'Face To Face', 'F', 'https://termmasterschedule.drexel.edu/webtms_du/courseDetails/25110?crseNumb=102', '25110', 'Computing and Informatics Design II', 'T', '02:00 pm - 02:50 pm', '', '', 'Dave H Augenblick']
+    ["CS", "164", "091",...] ],
+]
+all_sections = [
+    [ ["CI", "102", "060",...], ["CI", "102", "061",...] ],
+    [ ["CS", "164", "090",...], ["CS", "164", "091",...] ],
+]
+"""
+
+def get_constraint_violations(schedule, constraints, constraint_violation_functions, all_sections, type="soft"):
+    # Returns an object with the number of violations for each constraint of a given type
+    soft_constraint_violations = {name: constraint_violation_functions[type][name](schedule, constraints, all_sections) for name in constraints if constraints[name][0] > 0}
     return soft_constraint_violations
 
 def fitness(schedule, constraints, constraint_violation_functions, all_sections, max_fitness=100):
@@ -16,21 +39,16 @@ def fitness(schedule, constraints, constraint_violation_functions, all_sections,
     for hard_constraint in constraint_violation_functions["hard"]:
         if constraint_violation_functions["hard"][hard_constraint](schedule):
             return 0
-    soft_constraint_violations = get_soft_constraint_violations(schedule, constraints, constraint_violation_functions, all_sections)
+    soft_constraint_violations = get_constraint_violations(schedule, constraints, constraint_violation_functions, all_sections)
     fitness = max_fitness
     # Reduce the fitness by the number of violations and the weight of the violation
     for constraint in soft_constraint_violations:
         fitness -= soft_constraint_violations[constraint] * constraints[constraint][0]
     return fitness
 
-# all_sections = [
-# [ ["CI", "102", "060",...], ["CI", "102", "061",...] ],
-# [ ["CS", "164", "090",...], ["CS", "164", "091",...] ],
-# ]
-# Returns all combinations
-# ex. [[1,2,3],[4,5,6],[7,8,9,10]] -> [[1,4,7],[1,4,8],...,[3,6,10]]
 def get_all_possible_schdeules(all_sections):
     # Get all combinations of classes
+    # ex. [[1,2,3],[4,5,6],[7,8,9,10]] -> [[1,4,7],[1,4,8],...,[3,6,10]]
     return list(itertools.product(*all_sections))
 
 def algorithm():

@@ -10,6 +10,7 @@ def populate_fake_data():
     busy3 = datetime.datetime(year=friday.year, month=friday.month, day=friday.day, hour=10, minute=00)
     busy4 = datetime.datetime(year=wednesday.year, month=wednesday.month, day=wednesday.day, hour=14, minute=30)
 
+    ## User input
     courses = ["CS 171", "CI 102", "CS 164", "ENGL 103"]
     constraints = {
         # constraint_name : [weight, data],
@@ -17,6 +18,8 @@ def populate_fake_data():
         "prefer_longer_classes": [0., True],
         "preferred_class_gap_interval": [0.2, 1 * 60],
     }
+
+    ## Validate user input
     # Validate no_classes_during_time_interval
     if not isinstance(constraints["no_classes_during_time_interval"][1], (list)):
         print(f"Invalid type for no_classes_during_time_interval")

@@ -1,8 +1,10 @@
 import datetime
 
-# Input: '02:00 pm - 02:50 pm'
-# Output: [14, 0, 14, 50]
 def parse_time(date):
+    """
+    @param date - ex. '02:00 pm - 02:50 pm'
+    @return result - ex. [14, 0, 14, 50]
+    """
     if (date == "TBD"): return [0, 0, 0, 0]
     result = []
     # Split into [start_time, end_time]
