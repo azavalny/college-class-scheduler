@@ -17,7 +17,7 @@ def populate_fake_data():
     constraints = {
         # constraint_name : [weight, data],
         "no_classes_during_time_interval": [0.8, [[busy1, busy2], [busy3, busy4]]],
-        "longer_classes": [0., True],
+        "prefer_longer_classes": [0., True],
         "preferred_class_gap_interval": [0.2, 1 * 60],
     }
     # Validate no_classes_during_time_interval
@@ -25,7 +25,7 @@ def populate_fake_data():
         print(f"Invalid type for no_classes_during_time_interval")
         return
     # Validate longer_classes value
-    if not isinstance(constraints["longer_classes"][1], (bool)):
+    if not isinstance(constraints["prefer_longer_classes"][1], (bool)):
         print(f"Invalid type for longer_classes")
         return
     # Validate preferred_class_gap_interval value
@@ -107,7 +107,7 @@ def overlapping_classes_violations(schedule):
 #        '22374', 'Computer Programming I', 'M', '11:00 am - 12:50 pm',
 #        'Mar 15, 2022', 'Final Exam:\n08:00 am - 10:00 am', 'Mark W Boady'],
 #       dtype='<U80'))
-def no_classes_during_time_interval_violations(schedule, constraints):
+def no_classes_during_time_interval_violations(schedule, constraints, all_sections):
     # Get and sort time restrictions by start time
     time_restrictions = constraints["no_classes_during_time_interval"][1]
     time_restrictions = sorted(time_restrictions, key=lambda x: x[0])
@@ -119,11 +119,38 @@ def no_classes_during_time_interval_violations(schedule, constraints):
             overlap += max((min(interval[0], restriction[0]) - max(interval[1], restriction[1])).total_seconds() / 60, 0)
     return overlap
 
-# TODO
-def longer_classes_violations(schedule, constraints):
-    return 0
+def get_length(course):
+    if classes[8] == "TBD": classes[8] = "S"
+    today = datetime.date.today()
+    # Parse time interval
+    day = classes[8][0]
+    class_day = today + datetime.timedelta((classes_timedelta[day]-today.weekday()) % 7)
+    parsed_times = parse_time(classes[9])
+    start = datetime.datetime(year=class_day.year, month=class_day.month, day=class_day.day, hour=parsed_times[0], minute=parsed_times[1])
+    end = datetime.datetime(year=class_day.year, month=class_day.month, day=class_day.day, hour=parsed_times[2], minute=parsed_times[3])
+    return (end - start).total_seconds() / 60
 
-def preferred_class_gap_interval_violations(schedule, constraints):
+def prefer_longer_classes_violations(schedule, constraints, all_sections):
+    classes_timedelta = {
+            "Su": -1,
+            "M": 0,
+            "T": 1,
+            "W": 2,
+            "R": 3,
+            "F": 4,
+            "S": 5,
+    }
+    if not constraints["prefer_longer_classes"][1]: return 0
+    violations = 0
+    for i, course in enumerate(all_sections):
+        # Find the longest class time
+        longest_time = max(course, key=get_length)
+        # If the duration of the class in the schedule is not the longest, increment violations
+        class_time = get_length(schedule[i])
+        if class_time < longest_time: violations += 1
+    return violations
+
+def preferred_class_gap_interval_violations(schedule, constraints, all_sections):
     ideal_gap = constraints["preferred_class_gap_interval"][1]
     time_intervals = get_time_intervals(schedule)
     non_ideal_gap = 0 # in minutes
@@ -132,16 +159,16 @@ def preferred_class_gap_interval_violations(schedule, constraints):
         non_ideal_gap += abs(non_ideal_gap - gap)
     return non_ideal_gap
 
-def get_soft_constraint_violations(schedule, constraints, constraint_violation_functions):
-    soft_constraint_violations = {name: constraint_violation_functions["soft"][name](schedule, constraints) for name in constraints if constraints[name][0] > 0}
+def get_soft_constraint_violations(schedule, constraints, constraint_violation_functions, all_sections):
+    soft_constraint_violations = {name: constraint_violation_functions["soft"][name](schedule, constraints, all_sections) for name in constraints if constraints[name][0] > 0}
     return soft_constraint_violations
 
-def fitness(schedule, constraints, constraint_violation_functions, max_fitness=100):
+def fitness(schedule, constraints, constraint_violation_functions, all_sections, max_fitness=100):
     # Return if violates any hard constraints
     for hard_constraint in constraint_violation_functions["hard"]:
         if constraint_violation_functions["hard"][hard_constraint](schedule):
             return 0
-    soft_constraint_violations = get_soft_constraint_violations(schedule, constraints, constraint_violation_functions)
+    soft_constraint_violations = get_soft_constraint_violations(schedule, constraints, constraint_violation_functions, all_sections)
     fitness = max_fitness
     # Reduce the fitness by the number of violations and the weight of the violation
     for constraint in soft_constraint_violations:
@@ -172,7 +199,7 @@ def algorithm():
         },
         "soft": {
             "no_classes_during_time_interval": no_classes_during_time_interval_violations,
-            "longer_classes": longer_classes_violations,
+            "prefer_longer_classes": prefer_longer_classes_violations,
             "preferred_class_gap_interval": preferred_class_gap_interval_violations,
         },
     }
@@ -196,7 +223,7 @@ def algorithm():
     schedules = get_all_possible_schdeules(all_sections)
 
     # Get fitness of each
-    fitnesses = [fitness(schedule, constraints) for schedule in schedules]
+    fitnesses = [fitness(schedule, constraints, constraint_violation_functions, all_sections) for schedule in schedules]
 
     # Return schdule with highest fitness
     print(f"Max Fitness: {max(fitnesses)}")
