@@ -2,6 +2,8 @@ import sqlite3
 import datetime
 import numpy as np
 import itertools
+from prettytable import PrettyTable
+from tqdm import tqdm
 
 from populate_fake_data import populate_fake_data
 from hard_constraints import overlapping_classes_violations
@@ -80,6 +82,7 @@ def algorithm():
         rows = cursor.execute(f'SELECT * FROM courses WHERE subject_code="{subject_code}" AND course_number="{course_number}"').fetchall()
         # Split course by type (ex. lecture, recitation, etc.)
         rows = np.array(rows)
+        # TODO: properly assign "Lecture & Lab"
         class_type = rows[:,2]
         class_type_diff = np.array([-1  if (class_type[i] != class_type[i-1]) else 0 for i in range(1,len(class_type))])
         rows = np.split(rows, np.where(class_type_diff)[0]+1)
@@ -89,17 +92,25 @@ def algorithm():
     schedules = get_all_possible_schdeules(all_sections)
 
     # Get fitness of each
-    fitnesses = [fitness(schedule, constraints, constraint_violation_functions, all_sections) for schedule in schedules]
+    fitnesses = [fitness(schedule, constraints, constraint_violation_functions, all_sections) for schedule in tqdm(schedules)]
 
     # Return schdule with highest fitness
     print(f"Max Fitness: {max(fitnesses)}")
+
+    # Print best schedule
     best_schedule_index = fitnesses.index(max(fitnesses))
-    print(f"Best Schedule: {schedules[best_schedule_index]}")
+    table = PrettyTable()
+    print(f"Best Schedule: ")
+    for course in schedules[best_schedule_index]:
+        row = np.concatenate((course[:5], [course[6]], course[8:]), axis=0)
+        table.add_row(row)
+        #print(course)
+    print(table)
 
     # Close SQL conneciton
     connection.commit()
     connection.close()
-    return
+    return schedules[best_schedule_index]
 
 if __name__ == "__main__":
     algorithm()

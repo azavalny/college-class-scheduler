@@ -2,3 +2,5 @@ fuzzywuzzy==0.18.0
 thefuzz==0.19.0
 numpy==1.22.1
 DateTime==4.4
+prettytable==3.1.1
+tqdm==4.63.0
