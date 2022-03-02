@@ -1,5 +1,15 @@
 import datetime
 
+classes_timedelta = {
+        "Su": -1,
+        "M": 0,
+        "T": 1,
+        "W": 2,
+        "R": 3,
+        "F": 4,
+        "S": 5,
+}
+
 def parse_time(date):
     """
     @param date - ex. '02:00 pm - 02:50 pm'
@@ -22,15 +32,6 @@ def parse_time(date):
 # parse_time('02:00 pm - 02:50 pm')
 
 def get_time_intervals(schedule):
-    classes_timedelta = {
-            "Su": -1,
-            "M": 0,
-            "T": 1,
-            "W": 2,
-            "R": 3,
-            "F": 4,
-            "S": 5,
-    }
     today = datetime.date.today()
     intervals = []
     for classes in schedule:
@@ -47,12 +48,12 @@ def get_time_intervals(schedule):
     return intervals
 
 def get_length(course):
-    if classes[8] == "TBD": classes[8] = "S"
+    if course[8] == "TBD": course[8] = "S"
     today = datetime.date.today()
     # Parse time interval
-    day = classes[8][0]
+    day = course[8][0]
     class_day = today + datetime.timedelta((classes_timedelta[day]-today.weekday()) % 7)
-    parsed_times = parse_time(classes[9])
+    parsed_times = parse_time(course[9])
     start = datetime.datetime(year=class_day.year, month=class_day.month, day=class_day.day, hour=parsed_times[0], minute=parsed_times[1])
     end = datetime.datetime(year=class_day.year, month=class_day.month, day=class_day.day, hour=parsed_times[2], minute=parsed_times[3])
     return (end - start).total_seconds() / 60

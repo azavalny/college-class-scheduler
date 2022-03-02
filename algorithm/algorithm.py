@@ -82,9 +82,19 @@ def algorithm():
         rows = cursor.execute(f'SELECT * FROM courses WHERE subject_code="{subject_code}" AND course_number="{course_number}"').fetchall()
         # Split course by type (ex. lecture, recitation, etc.)
         rows = np.array(rows)
-        # TODO: properly assign "Lecture & Lab"
+        # Remove special classes
+        rows_to_delete = [i for i, x in enumerate(rows[:,2]) if " " in x and "Special Topics" not in x]
+        rows = np.delete(rows, rows_to_delete, axis=0)
+        # Separate different instruction types - ex. Lecture vs Recitation vs Lab
         class_type = rows[:,2]
-        class_type_diff = np.array([-1  if (class_type[i] != class_type[i-1]) else 0 for i in range(1,len(class_type))])
+        class_type_diff = []
+        for i in range(1,len(class_type)):
+            # Split if the instruction type changes
+            if (class_type[i] != class_type[i-1]):
+                class_type_diff.append(-1)
+            else:
+                class_type_diff.append(0)
+        class_type_diff = np.array(class_type_diff)
         rows = np.split(rows, np.where(class_type_diff)[0]+1)
         all_sections += rows
 
@@ -95,14 +105,14 @@ def algorithm():
     fitnesses = [fitness(schedule, constraints, constraint_violation_functions, all_sections) for schedule in tqdm(schedules)]
 
     # Return schdule with highest fitness
-    print(f"Max Fitness: {max(fitnesses)}")
+    print(f"Max Fitness: {max(fitnesses):.2f}")
 
     # Print best schedule
     best_schedule_index = fitnesses.index(max(fitnesses))
     table = PrettyTable()
     print(f"Best Schedule: ")
     for course in schedules[best_schedule_index]:
-        row = np.concatenate((course[:5], [course[6]], course[8:]), axis=0)
+        row = np.concatenate((course[:5], [course[6]], course[10:]), axis=0)
         table.add_row(row)
         #print(course)
     print(table)

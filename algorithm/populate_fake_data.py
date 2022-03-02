@@ -11,12 +11,13 @@ def populate_fake_data():
     busy4 = datetime.datetime(year=wednesday.year, month=wednesday.month, day=wednesday.day, hour=14, minute=30)
 
     ## User input
-    courses = ["CS 171", "CI 102", "CS 164", "ENGL 103"]
+    #courses = ["CS 171", "CI 102", "CS 164", "ENGL 103"]
+    courses = ["CS 171", "CI 102", "CS 164", "ENGL 103", "BUSN 102", "MATH 123"]
     constraints = {
         # constraint_name : [weight, data],
         "no_classes_during_time_interval": [0.8, [[busy1, busy2], [busy3, busy4]]],
-        "prefer_longer_classes": [0., True],
-        "preferred_class_gap_interval": [0.2, 1 * 60],
+        "prefer_longer_classes": [0.1, True],
+        "preferred_class_gap_interval": [0.1, 1 * 60],
     }
 
     ## Validate user input
