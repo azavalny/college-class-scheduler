@@ -7,12 +7,11 @@ def populate_fake_data():
 
     busy1 = datetime.datetime(year=friday.year, month=friday.month, day=friday.day, hour=15, minute=30)
     busy2 = datetime.datetime(year=friday.year, month=friday.month, day=friday.day, hour=17, minute=00)
-    busy3 = datetime.datetime(year=friday.year, month=friday.month, day=friday.day, hour=10, minute=00)
+    busy3 = datetime.datetime(year=wednesday.year, month=wednesday.month, day=wednesday.day, hour=10, minute=00)
     busy4 = datetime.datetime(year=wednesday.year, month=wednesday.month, day=wednesday.day, hour=14, minute=30)
 
     ## User input
-    #courses = ["CS 171", "CI 102", "CS 164", "ENGL 103"]
-    courses = ["CS 171", "CI 102", "CS 164", "ENGL 103", "BUSN 102", "MATH 123"]
+    courses = ["CS 171", "CI 102", "CS 164", "ENGL 103", "MATH 123"]
     constraints = {
         # constraint_name : [weight, data],
         "no_classes_during_time_interval": [0.8, [[busy1, busy2], [busy3, busy4]]],
