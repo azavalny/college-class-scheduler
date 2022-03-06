@@ -96,7 +96,7 @@ def algorithm():
                 class_type_diff.append(0)
         class_type_diff = np.array(class_type_diff)
         rows = np.split(rows, np.where(class_type_diff)[0]+1)
-        all_sections += rows
+        if len(rows[0]) != 0: all_sections += rows
 
     # Create all possible schedules where hard constraints are not violated
     schedules = get_all_possible_schdeules(all_sections)
