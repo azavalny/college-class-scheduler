@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { NavLink } from 'react-router-dom';
 
 export default function Navbar() {
   const [show, setShow] = useState(false);
@@ -16,18 +17,18 @@ export default function Navbar() {
         </a>
       </div>
       <div>
-        <a
-          href="/one"
+        <NavLink
+          to="/about"
           className="text-lg no-underline text-grey-darkest hover:text-blue-dark ml-2"
         >
           About Us
-        </a>
-        <a
-          href="/two"
+        </NavLink>
+        <NavLink
+          to="/report-bug"
           className="text-lg no-underline text-grey-darkest hover:text-blue-dark ml-2"
         >
           Report a Bug
-        </a>
+        </NavLink>
       </div>
     </nav>
   );
