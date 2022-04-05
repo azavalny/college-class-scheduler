@@ -58,5 +58,6 @@ module.exports = {
     'react/jsx-no-useless-fragment': 0,
     'react/jsx-no-constructed-context-values': 0,
     'default-param-last': 0,
+    'linebreak-style': ['error', process.platform === 'win32' ? 'windows' : 'unix'],
   },
 };
