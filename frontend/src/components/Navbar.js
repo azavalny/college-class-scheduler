@@ -9,7 +9,7 @@ export default function Navbar() {
           href="/"
           className="text-2xl no-underline text-grey-darkest hover:text-blue-dark"
         >
-          Class Scheduling App
+          Class Scheduler
         </a>
       </div>
       <div>

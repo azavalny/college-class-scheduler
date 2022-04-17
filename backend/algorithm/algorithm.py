@@ -5,9 +5,9 @@ import itertools
 from prettytable import PrettyTable
 from tqdm import tqdm
 
-from populate_fake_data import populate_fake_data
-from hard_constraints import overlapping_classes_violations
-from soft_constraints import no_classes_during_time_interval_violations, prefer_longer_classes_violations, preferred_class_gap_interval_violations
+from algorithm.populate_fake_data import populate_fake_data
+from algorithm.hard_constraints import overlapping_classes_violations
+from algorithm.soft_constraints import no_classes_during_time_interval_violations, prefer_longer_classes_violations, preferred_class_gap_interval_violations
 
 """
 User Input:
@@ -53,13 +53,14 @@ def get_all_possible_schdeules(all_sections):
     # ex. [[1,2,3],[4,5,6],[7,8,9,10]] -> [[1,4,7],[1,4,8],...,[3,6,10]]
     return list(itertools.product(*all_sections))
 
-def algorithm():
+def algorithm(courses = None, constraints = None):
     # Open SQL connection
     connection = sqlite3.connect("../data/courses.db")
     cursor = connection.cursor()
 
     # Get data
-    courses, constraints = populate_fake_data()
+    if courses is None and constraints is None:
+        courses, constraints = populate_fake_data()
 
     constraint_violation_functions = {
         "hard": {
@@ -79,7 +80,8 @@ def algorithm():
         subject_code = course_data[0]
         course_number = course_data[1]
         # Get rows from database
-        rows = cursor.execute(f'SELECT * FROM courses WHERE subject_code="{subject_code}" AND course_number="{course_number}"').fetchall()
+        sql = 'SELECT * FROM courses WHERE subject_code="%s" AND course_number="%s"'
+        rows = cursor.execute(sql, (subject_code, course_number)).fetchall()
         # Split course by type (ex. lecture, recitation, etc.)
         rows = np.array(rows)
         # Remove special classes

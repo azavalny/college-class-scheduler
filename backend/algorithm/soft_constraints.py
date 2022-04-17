@@ -1,4 +1,4 @@
-from time_intervals import parse_time, get_time_intervals, get_length
+from algorithm.time_intervals import parse_time, get_time_intervals, get_length
 
 def no_classes_during_time_interval_violations(schedule, constraints, all_sections):
     # Get and sort time restrictions by start time
