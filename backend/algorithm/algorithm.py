@@ -5,9 +5,13 @@ import itertools
 from prettytable import PrettyTable
 from tqdm import tqdm
 
-from algorithm.populate_fake_data import populate_fake_data
-from algorithm.hard_constraints import overlapping_classes_violations
-from algorithm.soft_constraints import no_classes_during_time_interval_violations, prefer_longer_classes_violations, preferred_class_gap_interval_violations
+# from algorithm.populate_fake_data import populate_fake_data
+# from algorithm.hard_constraints import overlapping_classes_violations
+# from algorithm.soft_constraints import no_classes_during_time_interval_violations, prefer_longer_classes_violations, preferred_class_gap_interval_violations
+
+from populate_fake_data import populate_fake_data
+from hard_constraints import overlapping_classes_violations
+from soft_constraints import no_classes_during_time_interval_violations, prefer_longer_classes_violations, preferred_class_gap_interval_violations
 
 """
 User Input:
@@ -80,7 +84,8 @@ def algorithm(courses = None, constraints = None):
         subject_code = course_data[0]
         course_number = course_data[1]
         # Get rows from database
-        sql = 'SELECT * FROM courses WHERE subject_code="%s" AND course_number="%s"'
+        sql = "SELECT * FROM courses WHERE subject_code=(?) AND course_number=(?)"
+        print(sql)
         rows = cursor.execute(sql, (subject_code, course_number)).fetchall()
         # Split course by type (ex. lecture, recitation, etc.)
         rows = np.array(rows)
@@ -122,6 +127,7 @@ def algorithm(courses = None, constraints = None):
     # Close SQL conneciton
     connection.commit()
     connection.close()
+    print(schedules[best_schedule_index])
     return schedules[best_schedule_index]
 
 if __name__ == "__main__":

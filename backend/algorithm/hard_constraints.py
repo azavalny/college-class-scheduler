@@ -1,5 +1,6 @@
 import datetime
-from algorithm.time_intervals import get_time_intervals
+#from algorithm.time_intervals import get_time_intervals
+from time_intervals import get_time_intervals
 
 def overlapping_classes_violations(schedule):
     # Checks if a given schedule had overlapping classes

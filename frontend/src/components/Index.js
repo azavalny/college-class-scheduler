@@ -10,14 +10,12 @@ import Navbar from './Navbar'
 // TODO - in order of importance
 // - fix backend to return parsed data
 // - make sure request does not timeout
-// - add multiple boxes for courses
 // - add fuzzy finding for courses
 // - fix css
 
 export default function Index() {
   const [events, setEvents] = useState([]);
   const [constraints, setConstraints] = useState({
-    // TODO:
     no_classes_during_time_interval: [0, []],
     prefer_longer_classes: [0, false],
     preferred_class_gap_interval: [0, 1 * 60],
@@ -102,9 +100,9 @@ export default function Index() {
         setEvents(events);
       });
   }
-  handleSubmit()
 
   const handleEventClick = (info) => {
+    console.log(info.event.start instanceof Date);
     if (info.event.extendedProps.description) {
       console.log('Part of schedule')
       return
@@ -117,12 +115,16 @@ export default function Index() {
     }
   }
 
-  const renderEventContent = (eventInfo) => (
-    <>
-      <b>{eventInfo.timeText}</b>
-      <i>{eventInfo.event.title}</i>
-    </>
-  )
+  const renderEventContent = (eventInfo) => {
+    // console.log(eventInfo)
+    const { event } = eventInfo
+    return (
+      <>
+        <b>{eventInfo.timeText}</b>
+        <i> {eventInfo.event.title}</i>
+      </>
+    )
+  }
 
   const handleChange = (e, key, index, value) => {
     e.preventDefault();
