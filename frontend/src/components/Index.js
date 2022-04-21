@@ -8,16 +8,14 @@ import interactionPlugin from '@fullcalendar/interaction' // needed for dayClick
 import Navbar from './Navbar'
 
 // TODO - in order of importance
-// - fix backend to return parsed dates
-// - add no classes during time interval date picker
-// - parse backend response into calendar events
+// - fix backend to return parsed data
 // - make sure request does not timeout
 // - add multiple boxes for courses
 // - add fuzzy finding for courses
 // - fix css
 
 export default function Index() {
-  const [schedule, setSchedule] = useState([]);
+  const [events, setEvents] = useState([]);
   const [constraints, setConstraints] = useState({
     // TODO:
     no_classes_during_time_interval: [0, []],
@@ -36,10 +34,12 @@ export default function Index() {
     })
     if (total !== 1) {
       // eslint-disable-next-line
-      alert('Constraints must add up to 100%')
-      return
+      window.alert('Constraints must add up to 100%')
+      // return
     }
     parsedConstraints.preferred_class_gap_interval[1] *= 60
+    parsedConstraints.no_classes_during_time_interval[1] = events.filter((event) => event.title === 'Busy').map((event) => [event.start, event.end])
+    console.log(parsedConstraints)
 
     // const courses = ['CS 171', 'CI 102', 'CS 164', 'ENGL 103', 'MATH 123']
     // const constraints = {
@@ -59,36 +59,62 @@ export default function Index() {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(data),
+      // body: JSON.stringify(data),
     })
       .then((res) => res.json())
       .then((data) => {
         console.log(data.schedule);
-        const events = [
-          {
-            title: 'Event 3',
-            start: '2022-04-16T12:30:00',
-            end: '2022-04-16T13:30:00',
-            allDay: false, // will make the time show
-            extendedProps: {
-              description: 'Test',
-            },
-            rrule: {
-              freq: 'weekly',
-              interval: 1,
-              byweekday: ['mo', 'sa'],
-              dtstart: '2022-04-16T12:30:00',
-              until: '2022-06-01',
-            },
+        const events = data.schedule.map((course) => ({
+          title: `${course.subject} ${course.course_number}-${course.section_number}`,
+          start: course.start, // '2022-04-16T12:30:00',
+          end: course.end, // '2022-04-16T13:30:00',
+          allDay: false, // will make the time show
+          extendedProps: {
+            // TODO: Format description better
+            description: `${course.subject} ${course.course_number}-${course.section_number} ${course.instructor} ${course.location} ${course.start_time}-${course.end_time}`,
           },
-        ]
-        setSchedule(events);
+          rrule: {
+            freq: 'weekly',
+            interval: 1,
+            byweekday: ['mo', 'sa'], // TODO: read course.days and populate here
+            dtstart: '2022-04-16T12:30:00', // TODO
+            until: '2022-06-01',
+          },
+        }))
+        // const events = [
+        //   {
+        //     title: 'Event 3',
+        //     start: '2022-04-16T12:30:00',
+        //     end: '2022-04-16T13:30:00',
+        //     allDay: false, // will make the time show
+        //     extendedProps: {
+        //       description: 'Test',
+        //     },
+        //     rrule: {
+        //       freq: 'weekly',
+        //       interval: 1,
+        //       byweekday: ['mo', 'sa'],
+        //       dtstart: '2022-04-16T12:30:00',
+        //       until: '2022-06-01',
+        //     },
+        //   },
+        // ]
+        setEvents(events);
       });
   }
+  handleSubmit()
 
   const handleEventClick = (info) => {
-    console.log(info.event.title);
-    console.log(info.event.extendedProps.description);
+    if (info.event.extendedProps.description) {
+      console.log('Part of schedule')
+      return
+    }
+    // TODO: show popup menu to allow deleting "Busy" event
+    if (info.event.title === 'Busy') {
+      // eslint-disable-next-line
+      const result = window.prompt('Delete this event?', 'yes')
+      if (result === 'yes') info.event.remove()
+    }
   }
 
   const renderEventContent = (eventInfo) => (
@@ -116,6 +142,21 @@ export default function Index() {
         ...constraints[key].slice(index + 1),
       ],
     });
+  }
+
+  const handleSelect = (info) => {
+    const { start, end } = info;
+    setEvents([
+      ...events,
+      {
+        id: Date.now().toString(),
+        title: 'Busy',
+        start,
+        end,
+        allDay: false,
+        // backgroundColor: '#808080',
+      },
+    ]);
   }
 
   return (
@@ -185,7 +226,9 @@ export default function Index() {
             selectMirror
             eventContent={renderEventContent}
             eventClick={handleEventClick}
-            events={schedule}
+            events={events}
+            select={handleSelect}
+            eventColor="#808080"
           />
         </div>
       </div>

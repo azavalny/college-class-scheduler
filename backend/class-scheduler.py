@@ -29,6 +29,13 @@ def get_schedule():
         ['CI', '102', 'Lecture', 'Face To Face', 'F', 'https://termmasterschedule.drexel.edu/webtms_du/courseDetails/25110?crseNumb=102', '25110', 'Computing and Informatics Design II', 'T', '02:00 pm - 02:50 pm', '', '', 'Dave H Augenblick'],
         ["CS", "164", "091"],
     ]
+
+    # TODO: reformat schedule
+    # schedule = [
+    #     { 'subject': 'CS', 'course_number': '164', 'section': '091', 'instructor': 'Dave H Augenblick', method: "Face To Face", 'days': 'MWF', 'start_time': '02:00 pm', 'end_time': '02:50 pm', 'location': '', 'seats_available': '', 'seats_total': '' },
+    # ]
+    # TODO: add start and end date (figure out which quarter and have preset variables with start and end date of term, 11 weeks apart)
+
     return {
         "schedule": schedule,
     }
