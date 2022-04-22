@@ -13,12 +13,6 @@ def test():
     return '12222'
 
 def format_schedule(schedule):
-    #SubjectCode,CourseNo\.,InstrType,InstrMethod,Sec,CRN_URL,CRN,CourseTitle,Days_Time,Days_Time1,Days_Time2,Days_Time3,Instructor
-    #        ['CS', '171', 'Lab', 'Face To Face', '060',
-    #       'https://termmasterschedule.drexel.edu/webtms_du/courseDetails/22365?crseNumb=171',
-    #       '22365', 'Computer Programming I', 'W', '09:00 am - 10:50 am', '',
-    #       '', 'Mark W Boady, Adelaida A Medlock']
-
     school_year = 2021
     term_start_and_end_dates = {
         'fall': {
