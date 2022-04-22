@@ -34,7 +34,8 @@ for term in terms:
             instructor = row[12]
 
             # Insert table
-            cursor.execute(f'INSERT INTO courses VALUES ("term", "{subject_code}", "{course_number}", "{instruction_type}", "{instruction_method}", "{section}", "{crn_url}", "{crn}", "{course_title}", "{days}", "{times}", "{finals_day}", "{finals_time}", "{instructor}")')
+            sql = "INSERT INTO courses VALUES ((?), (?), (?), (?), (?), (?), (?), (?), (?), (?), (?), (?), (?), (?))"
+            cursor.execute(sql, (term, subject_code, course_number, instruction_type, instruction_method, section, crn_url, crn, course_title, days, times, finals_day, finals_time, instructor))
 
 connection.commit()
 connection.close()
