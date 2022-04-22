@@ -5,13 +5,13 @@ import itertools
 from prettytable import PrettyTable
 from tqdm import tqdm
 
-# from algorithm.populate_fake_data import populate_fake_data
-# from algorithm.hard_constraints import overlapping_classes_violations
-# from algorithm.soft_constraints import no_classes_during_time_interval_violations, prefer_longer_classes_violations, preferred_class_gap_interval_violations
+from .populate_fake_data import populate_fake_data
+from .hard_constraints import overlapping_classes_violations
+from .soft_constraints import no_classes_during_time_interval_violations, prefer_longer_classes_violations, preferred_class_gap_interval_violations
 
-from populate_fake_data import populate_fake_data
-from hard_constraints import overlapping_classes_violations
-from soft_constraints import no_classes_during_time_interval_violations, prefer_longer_classes_violations, preferred_class_gap_interval_violations
+# from populate_fake_data import populate_fake_data
+# from hard_constraints import overlapping_classes_violations
+# from soft_constraints import no_classes_during_time_interval_violations, prefer_longer_classes_violations, preferred_class_gap_interval_violations
 
 """
 User Input:
