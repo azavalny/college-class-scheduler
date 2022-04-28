@@ -11,7 +11,6 @@
     "dev": "npm run start & cd ../backend && source venv/bin/activate && flask run",
     "backend": "cd ../backend && source venv/bin/activate && flask run"
   },
-  "proxy": "http://localhost:5000",
   "dependencies": {
     "@fullcalendar/daygrid": "^5.11.0",
     "@fullcalendar/interaction": "^5.11.0",

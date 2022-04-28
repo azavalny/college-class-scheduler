@@ -6,6 +6,7 @@ import timeGridPlugin from '@fullcalendar/timegrid'
 import interactionPlugin from '@fullcalendar/interaction'
 // import moment from 'moment'
 import Navbar from './Navbar'
+import CourseSelector from './CourseSelector'
 
 // TODO - in order of importance
 // - make sure request does not timeout
@@ -148,6 +149,40 @@ export default function Index() {
 
   const inputStyles = 'bg-gray-200 appearance-none border-2 border-gray-200 rounded py-2 px-4 m-2 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-gray-500'
 
+  const inputs = [
+    {
+      key: 'no_classes_during_time_interval',
+      label: 'No classes during time interval',
+      min: 0,
+      max: 100,
+      step: 1,
+      weightValue: constraints.no_classes_during_time_interval[0],
+      weightOnChange: (e) => handleChange(e, 'no_classes_during_time_interval', 0, e.target.value),
+    },
+    {
+      key: 'prefer_longer_classes',
+      label: 'Prefer longer classes',
+      type: 'checkbox',
+      weightValue: constraints.prefer_longer_classes[0],
+      weightOnChange: (e) => handleChange(e, 'prefer_longer_classes', 0, e.target.value),
+      inputLabel: 'Enabled?',
+      inputValue: constraints.prefer_longer_classes[1],
+      inputOnChange: (e) => handleChange(e, 'prefer_longer_classes', 1, !constraints.prefer_longer_classes[1])
+    },
+    {
+      key: 'preferred_class_gap_interval',
+      label: 'Preferred class gap interval',
+      type: 'number',
+      min: 0,
+      max: 1,
+      step: 0.5,
+      weightValue: constraints.preferred_class_gap_interval[0],
+      weightOnChange: (e) => handleChange(e, 'preferred_class_gap_interval', 0, e.target.value),
+      inputValue: constraints.preferred_class_gap_interval[1],
+      inputOnChange: (e) => handleChange(e, 'preferred_class_gap_interval', 1, e.target.value)
+    },
+  ]
+
   return (
     <>
       <div className="">
@@ -156,118 +191,78 @@ export default function Index() {
           <span className="text-2xl">
             Preferences
           </span>
-          <div className="w-auto lg:w-6/12">
-            <div className="md:flex md:items-center mt-4">
-              <div className="md:w-1/3">
-                <label> Courses </label>
-              </div>
-              <div className="md:w-2/3">
-                <input
-                  type="text"
-                  className={inputStyles}
-                  value={courses}
-                  onChange={(e) => setCourses(e.target.value)}
-                />
-              </div>
-            </div>
-            <hr />
-            <div className="md:flex md:items-center mb-6">
-              <div className="md:w-1/3">
-                <label> No Classes During Time Interval </label>
-              </div>
-              <div className="md:w-2/3 ">
-                Weight: <input
-                  type="number"
-                  step="1"
-                  min="0"
-                  max="100"
-                  value={constraints.no_classes_during_time_interval[0]}
-                  onChange={(e) => handleChange(e, 'no_classes_during_time_interval', 0, e.target.value)}
-                  className={inputStyles}
-                />%
-                <br />
-              </div>
-              <hr />
-              <div className="md:w-1/3">
-                <label> Prefer Longer Classes </label>
-              </div>
-              <div className="md:w-2/3 ">
-                Weight: <input
-                  type="number"
-                  step="1"
-                  min="0"
-                  max="100"
-                  value={constraints.prefer_longer_classes[0]}
-                  onChange={(e) => handleChange(e, 'prefer_longer_classes', 0, e.target.value)}
-                  className={inputStyles}
-                />%
-                <br />
-                <input
-                  type="checkbox"
-                  defaultChecked={constraints.prefer_longer_classes[1]}
-                  onChange={(e) => handleChange(e, 'prefer_longer_classes', 1, !constraints.prefer_longer_classes[1])}
-                  className="mr-2"
-                /> Enabled?
-              </div>
-            </div>
-            <hr />
-            <div className="md:flex md:items-center">
-              <div className="md:w-1/3">
-                <label> Preferred Class Gap Interval </label>
-              </div>
-              <div className="md:w-2/3 ">
-                Weight: <input
-                  type="number"
-                  step="1"
-                  min="0"
-                  max="100"
-                  value={constraints.preferred_class_gap_interval[0]}
-                  onChange={(e) => handleChange(e, 'preferred_class_gap_interval', 0, e.target.value)}
-                  className={inputStyles}
-                />%
-                <br />
-                <input
-                  type="number"
-                  step="0.5"
-                  min="0"
-                  max="5"
-                  value={constraints.preferred_class_gap_interval[1]}
-                  onChange={(e) => handleChange(e, 'preferred_class_gap_interval', 1, e.target.value)}
-                  className={inputStyles}
-                /> Minutes
-              </div>
-            </div>
-            <hr />
-            <div className="md:flex md:items-center my-10">
-              <div className="md:w-1/3" />
-              <div className="md:w-2/3">
-                <button onClick={handleSubmit} className="shadow bg-gray-500 hover:bg-gray-400 focus:shadow-outline focus:outline-none text-white font-bold py-2 px-4 rounded" type="button">
-                  Submit
-                </button>
-              </div>
-            </div>
+          <div> {/* Inputs Container */}
+            <CourseSelector courses={courses} setCourses={setCourses} inputStyles={inputStyles} />
+            <table className="table-auto border-solid mx-auto">
+              <thead>
+                <th>Constraint</th>
+                <th>Weight</th>
+                <th></th>
+              </thead>
+              <tbody>
+                {inputs.map((input, i) => (
+                  <tr key={i}>
+                    <td>{input.label}</td>
+                    <td>
+                      <input
+                        type="number"
+                        className={inputStyles}
+                        value={input.weightValue}
+                        onChange={input.weightOnChange}
+                      />%
+                    </td>
+                    <td>
+                      {input.type === 'checkbox' && (
+                        <>
+                          <input
+                            type="checkbox"
+                            checked={input.inputValue}
+                            onChange={input.inputOnChange}
+                          /> Enabled?
+                        </>
+                      )}
+                      {input.type === 'number' && (
+                        <>
+                          <input
+                            type="number"
+                            className={inputStyles}
+                            value={input.inputValue}
+                            onChange={input.inputOnChange}
+                          /> Minutes
+                        </>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <button onClick={handleSubmit} className="shadow bg-gray-500 hover:bg-gray-400 focus:shadow-outline focus:outline-none text-white font-bold py-2 px-4 rounded" type="button">
+              Submit
+            </button>
           </div>
-          <FullCalendar
-            ref={calendarRef}
-            plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, rrulePlugin]}
-            initialView="timeGridWeek"
-            headerToolbar={{
-              left: 'prev,next today',
-              center: 'title',
-              right: 'dayGridMonth,timeGridWeek,timeGridDay',
-            }}
-            editable
-            droppable
-            selectable
-            selectMirror
-            eventContent={renderEventContent}
-            eventClick={handleEventClick}
-            events={events}
-            select={handleSelect}
-            eventColor="#808080"
-            scrollTime="06:00:00"
-            initialDate={new Date("2021-10-01")}
-          />
+          <div className="p-8">
+            <FullCalendar
+              ref={calendarRef}
+              plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, rrulePlugin]}
+              initialView="timeGridWeek"
+              headerToolbar={{
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth,timeGridWeek,timeGridDay',
+              }}
+              editable
+              droppable
+              selectable
+              selectMirror
+              eventContent={renderEventContent}
+              eventClick={handleEventClick}
+              events={events}
+              select={handleSelect}
+              eventColor="#808080"
+              scrollTime="06:00:00"
+              initialDate={new Date("2021-10-01")}
+            />
+          </div>
         </div>
       </div>
     </>
