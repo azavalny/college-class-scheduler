@@ -55,12 +55,22 @@ def get_all_possible_schdeules(all_sections):
 
 def algorithm(courses = None, constraints = None):
     # Open SQL connection
-    connection = sqlite3.connect("../data/courses.db")
+    #import os
+    #print(os.getcwd())
+    connection = sqlite3.connect("./data/courses.db")
     cursor = connection.cursor()
 
     # Get data
     if courses is None and constraints is None:
         courses, constraints = populate_fake_data()
+    else:
+        # Parse dates
+        for constraint in constraints:
+            if constraint == "no_classes_during_time_interval":
+                for interval in constraints[constraint][1]:
+                    interval[0] = datetime.datetime.strptime(interval[0], '%Y-%m-%dT%H:%M:%S.000Z')
+                    print("YEAR", interval[0].year)
+                    interval[1] = datetime.datetime.strptime(interval[1], '%Y-%m-%dT%H:%M:%S.000Z')
 
     constraint_violation_functions = {
         "hard": {

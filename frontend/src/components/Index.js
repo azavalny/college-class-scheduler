@@ -1,18 +1,15 @@
 import React, { useState, useRef } from 'react'
-import FullCalendar from '@fullcalendar/react' // must go before plugins
+import FullCalendar from '@fullcalendar/react'
 import rrulePlugin from '@fullcalendar/rrule'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import timeGridPlugin from '@fullcalendar/timegrid'
 import interactionPlugin from '@fullcalendar/interaction'
-// import moment from 'moment'
 import Navbar from './Navbar'
 import CourseSelector from './CourseSelector'
 
-// TODO - in order of importance
+// TODO
 // - make sure request does not timeout
 // - add fuzzy finding for courses
-// - input validation and error messages
-// - fix css
 
 export default function Index() {
   const [events, setEvents] = useState([]);
@@ -30,6 +27,14 @@ export default function Index() {
     let total = 0
     Object.keys(parsedConstraints).forEach((key) => {
       parsedConstraints[key][0] = parseFloat(parsedConstraints[key][0]) / 100
+      if (isNaN(parsedConstraints[key][0])) {
+        window.alert('Please enter a valid number for ' + key)
+        return
+      }
+      if (parsedConstraints[key][0] < 0) {
+        window.alert('Please enter a positive number for ' + key)
+        return
+      }
       total += parsedConstraints[key][0]
     })
     if (total !== 1) {
@@ -38,6 +43,12 @@ export default function Index() {
       return
     }
     parsedConstraints.no_classes_during_time_interval[1] = events.filter((event) => event.title === 'Busy').map((a) => [a.start, a.end])
+    // Validate preferred_class_gap_interval
+    if (parsedConstraints.preferred_class_gap_interval[1] > inputs[2].max || parsedConstraints.preferred_class_gap_interval[1] < inputs[2].min) {
+      // eslint-disable-next-line
+      window.alert('Preferred class gap interval must be between ' + inputs[2].min + ' and ' + inputs[2].max)
+      return
+    }
 
     const userData = {
       courses: courses.split(','),
@@ -73,23 +84,25 @@ export default function Index() {
         const end = new Date(`2022-04-01T${course.end_time}`)
         const duration = (end.getTime() - start.getTime()) || 0
         return {
-        title: `${course.subject} ${course.course_number}-${course.section} ${course.course_title}`,
-        start: course.start_date, // '2022-04-16T12:30:00',
-        end: course.end_date, // '2022-04-16T13:30:00',
-        allDay: false, // will make the time show
-        extendedProps: {
-          description: `Instruction Type: ${course.instruction_type}\nInstruction Method: ${course.instruction_method}\nCRN: ${course.crn}\nInstructor: ${course.instructor}`,
-        },
-        backgroundColor: '#FBBC04',
-        duration,
-        rrule: {
-          freq: 'weekly',
-          interval: 1,
-          byweekday: course.days.match(/([A-Z]?[^A-Z]*)/g).slice(0, -1).map((day) => rruleDays[day]),
-          dtstart: `${formatDate(course.start_date)}T${course.start_time}`,
-          until: formatDate(course.end_date),
-        },
-      }})
+          title: `${course.subject} ${course.course_number}-${course.section} ${course.course_title}`,
+          start: course.start_date, // '2022-04-16T12:30:00',
+          end: course.end_date, // '2022-04-16T13:30:00',
+          allDay: false, // will make the time show
+          editable: false,
+          extendedProps: {
+            description: `Instruction Type: ${course.instruction_type}\nInstruction Method: ${course.instruction_method}\nCRN: ${course.crn}\nInstructor: ${course.instructor}`,
+          },
+          backgroundColor: '#FBBC04',
+          duration,
+          rrule: {
+            freq: 'weekly',
+            interval: 1,
+            byweekday: course.days.match(/([A-Z]?[^A-Z]*)/g).slice(0, -1).map((day) => rruleDays[day]),
+            dtstart: `${formatDate(course.start_date)}T${course.start_time}`,
+            until: formatDate(course.end_date),
+          },
+        }
+      })
       setEvents(events);
       let calendarApi = calendarRef.current.getApi()
       // calendarApi.gotoDate(data.schedule[0].start_date) // TODO
@@ -100,7 +113,7 @@ export default function Index() {
 
   const handleEventClick = (info) => {
     if (info.event.extendedProps.description) {
-      console.log('Part of schedule')
+      // console.log('Part of schedule')
       return
     }
     if (info.event.title === 'Busy') {
@@ -121,7 +134,7 @@ export default function Index() {
   }
 
   const handleChange = (e, key, index, value) => {
-    e.preventDefault();
+    if (key !== 'prefer_longer_classes') e.preventDefault();
     if (index === 0) value = parseInt(value, 10)
     setConstraints({
       ...constraints,
@@ -167,15 +180,15 @@ export default function Index() {
       weightOnChange: (e) => handleChange(e, 'prefer_longer_classes', 0, e.target.value),
       inputLabel: 'Enabled?',
       inputValue: constraints.prefer_longer_classes[1],
-      inputOnChange: (e) => handleChange(e, 'prefer_longer_classes', 1, !constraints.prefer_longer_classes[1])
+      inputOnChange: (e) => handleChange(e, 'prefer_longer_classes', 1, e.target.checked),
     },
     {
       key: 'preferred_class_gap_interval',
       label: 'Preferred class gap interval',
       type: 'number',
       min: 0,
-      max: 1,
-      step: 0.5,
+      max: 180,
+      step: 1,
       weightValue: constraints.preferred_class_gap_interval[0],
       weightOnChange: (e) => handleChange(e, 'preferred_class_gap_interval', 0, e.target.value),
       inputValue: constraints.preferred_class_gap_interval[1],
@@ -195,9 +208,11 @@ export default function Index() {
             <CourseSelector courses={courses} setCourses={setCourses} inputStyles={inputStyles} />
             <table className="table-auto border-solid mx-auto">
               <thead>
-                <th>Constraint</th>
-                <th>Weight</th>
-                <th></th>
+                <tr>
+                  <th>Constraint</th>
+                  <th>Weight</th>
+                  <th></th>
+                </tr>
               </thead>
               <tbody>
                 {inputs.map((input, i) => (
@@ -226,6 +241,9 @@ export default function Index() {
                           <input
                             type="number"
                             className={inputStyles}
+                            min={input.min}
+                            max={input.max}
+                            step={input.step}
                             value={input.inputValue}
                             onChange={input.inputOnChange}
                           /> Minutes
@@ -236,7 +254,7 @@ export default function Index() {
                 ))}
               </tbody>
             </table>
-            <button onClick={handleSubmit} className="shadow bg-gray-500 hover:bg-gray-400 focus:shadow-outline focus:outline-none text-white font-bold py-2 px-4 rounded" type="button">
+            <button onClick={handleSubmit} className="shadow bg-gray-500 hover:bg-gray-400 focus:shadow-outline focus:outline-none text-white font-bold py-2 px-4 m-2 rounded" type="button">
               Submit
             </button>
           </div>

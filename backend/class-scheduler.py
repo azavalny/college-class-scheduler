@@ -8,10 +8,6 @@ from src.time_intervals import parse_time
 app = Flask(__name__)
 CORS(app)
 
-@app.route('/api/get-schedule', methods=['GET'])
-def test():
-    return '12222'
-
 def format_schedule(schedule):
     school_year = 2021
     term_start_and_end_dates = {
@@ -60,8 +56,9 @@ def format_schedule(schedule):
 
 @app.route('/api/get-schedule', methods=['POST'])
 def get_schedule():
-    courses = request.get_json('courses') or None
-    constraints = request.get_json('constraints') or None
+    data = request.get_json()
+    courses = data['courses']
+    constraints = data['constraints']
 
     #courses = ["CS 171", "CI 102", "CS 164", "ENGL 103"]
     #constraints = {
@@ -71,50 +68,51 @@ def get_schedule():
     #    "preferred_class_gap_interval": [0.2, 1 * 60],
     #}
 
-    #schedule = algorithm(courses, constraints)
+    if True:
+        schedule = algorithm(courses, constraints)
+    else:
+        schedule = [
+            ['CS', '171', 'Lab', 'Face To Face', '060',
+            'https://termmasterschedule.drexel.edu/webtms_du/courseDetails/22365?crseNumb=171',
+            '22365', 'Computer Programming I', 'W', '09:00 am - 10:50 am', '',
+            '', 'Mark W Boady, Adelaida A Medlock'],
 
-    schedule = [
-        ['CS', '171', 'Lab', 'Face To Face', '060',
-        'https://termmasterschedule.drexel.edu/webtms_du/courseDetails/22365?crseNumb=171',
-        '22365', 'Computer Programming I', 'W', '09:00 am - 10:50 am', '',
-        '', 'Mark W Boady, Adelaida A Medlock'],
+            ['CS', '171', 'Lecture', 'Face To Face', 'A',
+            'https://termmasterschedule.drexel.edu/webtms_du/courseDetails/22374?crseNumb=171',
+            '22374', 'Computer Programming I', 'M', '11:00 am - 12:50 pm',
+            'Mar 15, 2022', 'Final Exam:\n08:00 am - 10:00 am', 'Mark W Boady'],
 
-        ['CS', '171', 'Lecture', 'Face To Face', 'A',
-        'https://termmasterschedule.drexel.edu/webtms_du/courseDetails/22374?crseNumb=171',
-        '22374', 'Computer Programming I', 'M', '11:00 am - 12:50 pm',
-        'Mar 15, 2022', 'Final Exam:\n08:00 am - 10:00 am', 'Mark W Boady'],
+            ['CI', '102', 'Lab', 'Face To Face', '070',
+            'https://termmasterschedule.drexel.edu/webtms_du/courseDetails/22847?crseNumb=102',
+            '22847', 'Computing and Informatics Design II', 'F',
+            '01:00 pm - 02:50 pm', '', '', 'Chad E Peiper'],
 
-        ['CI', '102', 'Lab', 'Face To Face', '070',
-        'https://termmasterschedule.drexel.edu/webtms_du/courseDetails/22847?crseNumb=102',
-        '22847', 'Computing and Informatics Design II', 'F',
-        '01:00 pm - 02:50 pm', '', '', 'Chad E Peiper'],
+            ['CI', '102', 'Lecture', 'Face To Face', 'A',
+            'https://termmasterschedule.drexel.edu/webtms_du/courseDetails/21313?crseNumb=102',
+            '21313', 'Computing and Informatics Design II', 'T',
+            '09:00 am - 09:50 am', '', '', 'Tammy R Pirmann'],
 
-        ['CI', '102', 'Lecture', 'Face To Face', 'A',
-        'https://termmasterschedule.drexel.edu/webtms_du/courseDetails/21313?crseNumb=102',
-        '21313', 'Computing and Informatics Design II', 'T',
-        '09:00 am - 09:50 am', '', '', 'Tammy R Pirmann'],
+            ['CS', '164', 'Lab', 'Face To Face', '060',
+            'https://termmasterschedule.drexel.edu/webtms_du/courseDetails/21492?crseNumb=164',
+            '21492', 'Introduction to Computer Science', 'W',
+            '03:00 pm - 04:50 pm', '', '', 'Brian L Stuart'],
 
-        ['CS', '164', 'Lab', 'Face To Face', '060',
-        'https://termmasterschedule.drexel.edu/webtms_du/courseDetails/21492?crseNumb=164',
-        '21492', 'Introduction to Computer Science', 'W',
-        '03:00 pm - 04:50 pm', '', '', 'Brian L Stuart'],
+            ['CS', '164', 'Lecture', 'Face To Face', 'A',
+            'https://termmasterschedule.drexel.edu/webtms_du/courseDetails/21493?crseNumb=164',
+            '21493', 'Introduction to Computer Science', 'M',
+            '03:00 pm - 04:50 pm', 'Mar 16, 2022',
+            'Final Exam:\n03:30 pm - 05:30 pm', 'Brian L Stuart'],
 
-        ['CS', '164', 'Lecture', 'Face To Face', 'A',
-        'https://termmasterschedule.drexel.edu/webtms_du/courseDetails/21493?crseNumb=164',
-        '21493', 'Introduction to Computer Science', 'M',
-        '03:00 pm - 04:50 pm', 'Mar 16, 2022',
-        'Final Exam:\n03:30 pm - 05:30 pm', 'Brian L Stuart'],
+            ['ENGL', '103', 'Lecture', 'Hybrid', '141',
+            'https://termmasterschedule.drexel.edu/webtms_du/courseDetails/22759?crseNumb=103',
+            '22759', 'Composition and Rhetoric III: Themes and Genres', 'T',
+            '12:30 pm - 01:50 pm', '', '', 'Fred Siegel'],
 
-        ['ENGL', '103', 'Lecture', 'Hybrid', '141',
-        'https://termmasterschedule.drexel.edu/webtms_du/courseDetails/22759?crseNumb=103',
-        '22759', 'Composition and Rhetoric III: Themes and Genres', 'T',
-        '12:30 pm - 01:50 pm', '', '', 'Fred Siegel'],
-
-        ['MATH', '123', 'Lecture', 'Face To Face', '002',
-        'https://termmasterschedule.drexel.edu/webtms_du/courseDetails/20469?crseNumb=123',
-        '20469', 'Calculus III', 'MW', '06:00 pm - 07:50 pm', '', '',
-        'Sergio Zefelippo']
-   ]
+            ['MATH', '123', 'Lecture', 'Face To Face', '002',
+            'https://termmasterschedule.drexel.edu/webtms_du/courseDetails/20469?crseNumb=123',
+            '20469', 'Calculus III', 'MW', '06:00 pm - 07:50 pm', '', '',
+            'Sergio Zefelippo']
+       ]
 
     return {
         "schedule": format_schedule(schedule),
