@@ -27,18 +27,24 @@ export default function Index() {
 
   const exportEvents = () => {
     const icsFormattedEvents = events.map((event) => {
-      const { title, description, start, end, rrule } = event
+      const { title, extendedProps, rrule } = event
       rrule.dtstart = new Date(rrule.dtstart)
       rrule.until = new Date(rrule.until)
+      const formatDate = (date) => [date.getFullYear(), date.getMonth()+1, date.getDate(), date.getHours(), date.getMinutes()]
+      const format2Dates = (date1, date2) => [date1.getFullYear(), date1.getMonth()+1, date1.getDate(), date2.getHours(), date2.getMinutes()]
+      // TODO - problem: start date is after end date so the events are not exporting
+      const start = formatDate(new Date(event.start))
+      const end = format2Dates(new Date(event.start), new Date(event.end))
       return {
         title,
-        description,
+        description: extendedProps.description,
         start,
         end,
         recurrenceRule: (new RRule(rrule)).toString()
       }
     })
-    const { e, icsContents } = ics.createEvents(icsFormattedEvents)
+    console.log(icsFormattedEvents)
+    const { error: e, value: icsContents } = ics.createEvents(icsFormattedEvents)
     if (e) {
       console.log(e)
       return e
