@@ -19,25 +19,30 @@ export default function Index() {
     preferred_class_gap_interval: [10, 60],
   });
   const [courses, setCourses] = useState('CS 171,CI 102,CS 164,ENGL 103,MATH 123');
+  const [loading, setLoading] = useState(false);
   const calendarRef = useRef(null);
 
   const handleSubmit = async () => {
+    setLoading(true);
     // Convert to floats
     const parsedConstraints = JSON.parse(JSON.stringify(constraints))
     let total = 0
     Object.keys(parsedConstraints).forEach((key) => {
       parsedConstraints[key][0] = parseFloat(parsedConstraints[key][0]) / 100
       if (isNaN(parsedConstraints[key][0])) {
+        setLoading(false);
         window.alert('Please enter a valid number for ' + key)
         return
       }
       if (parsedConstraints[key][0] < 0) {
+        setLoading(false);
         window.alert('Please enter a positive number for ' + key)
         return
       }
       total += parsedConstraints[key][0]
     })
     if (total !== 1) {
+      setLoading(false);
       // eslint-disable-next-line
       window.alert('Constraints must add up to 100%')
       return
@@ -45,6 +50,7 @@ export default function Index() {
     parsedConstraints.no_classes_during_time_interval[1] = events.filter((event) => event.title === 'Busy').map((a) => [a.start, a.end])
     // Validate preferred_class_gap_interval
     if (parsedConstraints.preferred_class_gap_interval[1] > inputs[2].max || parsedConstraints.preferred_class_gap_interval[1] < inputs[2].min) {
+      setLoading(false);
       // eslint-disable-next-line
       window.alert('Preferred class gap interval must be between ' + inputs[2].min + ' and ' + inputs[2].max)
       return
@@ -60,7 +66,7 @@ export default function Index() {
       M: 'mo',
       T: 'tu',
       W: 'we',
-      Th: 'th',
+      R: 'th',
       F: 'fr',
       S: 'sa',
     }
@@ -104,7 +110,8 @@ export default function Index() {
         }
       })
       setEvents(events);
-      let calendarApi = calendarRef.current.getApi()
+      setLoading(false);
+      // let calendarApi = calendarRef.current.getApi()
       // calendarApi.gotoDate(data.schedule[0].start_date) // TODO
     } catch (error) {
       console.log(error);
@@ -195,6 +202,8 @@ export default function Index() {
       inputOnChange: (e) => handleChange(e, 'preferred_class_gap_interval', 1, e.target.value)
     },
   ]
+
+  if (loading) return <>Loading...</>
 
   return (
     <>
