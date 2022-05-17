@@ -31,10 +31,8 @@ export default function Index() {
       rrule.dtstart = new Date(rrule.dtstart)
       rrule.until = new Date(rrule.until)
       const formatDate = (date) => [date.getFullYear(), date.getMonth()+1, date.getDate(), date.getHours(), date.getMinutes()]
-      const format2Dates = (date1, date2) => [date1.getFullYear(), date1.getMonth()+1, date1.getDate(), date2.getHours(), date2.getMinutes()]
-      // TODO - problem: start date is after end date so the events are not exporting
-      const start = formatDate(new Date(event.start))
-      const end = format2Dates(new Date(event.start), new Date(event.end))
+      const start = formatDate(new Date(extendedProps.startTime))
+      const end = formatDate(new Date(extendedProps.endTime))
       return {
         title,
         description: extendedProps.description,
@@ -43,7 +41,7 @@ export default function Index() {
         recurrenceRule: (new RRule(rrule)).toString()
       }
     })
-    console.log(icsFormattedEvents)
+    // console.log(icsFormattedEvents)
     const { error: e, value: icsContents } = ics.createEvents(icsFormattedEvents)
     if (e) {
       console.log(e)
@@ -116,7 +114,7 @@ export default function Index() {
       S:  RRule.SA,
     }
 
-    const formatDate = (MyDate) => `${MyDate.getFullYear()}-${(`0${MyDate.getMonth() + 1}`).slice(-2)}-${(`0${MyDate.getDate()}`).slice(-2)}`
+    const formatDate = (date) => `${date.getFullYear()}-${(`0${date.getMonth() + 1}`).slice(-2)}-${(`0${date.getDate()}`).slice(-2)}`
 
     try {
       const response = await fetch('http://localhost:5000/api/get-schedule', {
@@ -142,6 +140,8 @@ export default function Index() {
           editable: false,
           extendedProps: {
             description: `Instruction Type: ${course.instruction_type}\nInstruction Method: ${course.instruction_method}\nCRN: ${course.crn}\nInstructor: ${course.instructor}`,
+            startTime: `${formatDate(course.start_date)}T${course.start_time}`,
+            endTime: `${formatDate(course.start_date)}T${course.end_time}`,
           },
           backgroundColor: '#FBBC04',
           duration,
