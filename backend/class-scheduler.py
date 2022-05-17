@@ -32,8 +32,8 @@ def format_schedule(schedule):
     def parse_class(course):
         term = 'fall'
         times = parse_time(course[9])
-        start_time = f'{times[0]}:{times[1]:02}:00'
-        end_time = f'{times[2]}:{times[3]:02}:00'
+        start_time = f'{times[0]:02}:{times[1]:02}:00'
+        end_time = f'{times[2]:02}:{times[3]:02}:00'
         return {
             'subject': course[0],
             'course_number': course[1],

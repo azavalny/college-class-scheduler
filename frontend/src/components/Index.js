@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react'
+import { RRule } from 'rrule'
 import FullCalendar from '@fullcalendar/react'
 import rrulePlugin from '@fullcalendar/rrule'
 import dayGridPlugin from '@fullcalendar/daygrid'
@@ -6,6 +7,8 @@ import timeGridPlugin from '@fullcalendar/timegrid'
 import interactionPlugin from '@fullcalendar/interaction'
 import Navbar from './Navbar'
 import CourseSelector from './CourseSelector'
+
+const ics = require('ics')
 
 // TODO
 // - make sure request does not timeout
@@ -21,6 +24,36 @@ export default function Index() {
   const [courses, setCourses] = useState('CS 171,CI 102,CS 164,ENGL 103,MATH 123');
   const [loading, setLoading] = useState(false);
   const calendarRef = useRef(null);
+
+  const exportEvents = () => {
+    const icsFormattedEvents = events.map((event) => {
+      const { title, extendedProps, rrule } = event
+      rrule.dtstart = new Date(rrule.dtstart)
+      rrule.until = new Date(rrule.until)
+      const formatDate = (date) => [date.getFullYear(), date.getMonth()+1, date.getDate(), date.getHours(), date.getMinutes()]
+      const start = formatDate(new Date(extendedProps.startTime))
+      const end = formatDate(new Date(extendedProps.endTime))
+      return {
+        title,
+        description: extendedProps.description,
+        start,
+        end,
+        recurrenceRule: (new RRule(rrule)).toString()
+      }
+    })
+    // console.log(icsFormattedEvents)
+    const { error: e, value: icsContents } = ics.createEvents(icsFormattedEvents)
+    if (e) {
+      console.log(e)
+      return e
+    }
+    const blob = new Blob([icsContents], { type: 'text/calendar;charset=utf-8' });
+    const filename = 'class-scheduler'
+    const link = document.createElement('a');
+    link.href = window.URL.createObjectURL(blob);
+    link.download = `${filename}-${+new Date()}.ics`;
+    link.click();
+  }
 
   const handleSubmit = async () => {
     setLoading(true);
@@ -61,17 +94,27 @@ export default function Index() {
       constraints: parsedConstraints,
     }
 
+    // const rruleDays = {
+    //   Su: 'su',
+    //   M: 'mo',
+    //   T: 'tu',
+    //   W: 'we',
+    //   R: 'th',
+    //   F: 'fr',
+    //   S: 'sa',
+    // }
+
     const rruleDays = {
-      Su: 'su',
-      M: 'mo',
-      T: 'tu',
-      W: 'we',
-      R: 'th',
-      F: 'fr',
-      S: 'sa',
+      Su: RRule.SU,
+      M:  RRule.MO,
+      T:  RRule.TU,
+      W:  RRule.WE,
+      R:  RRule.TH,
+      F:  RRule.FR,
+      S:  RRule.SA,
     }
 
-    const formatDate = (MyDate) => `${MyDate.getFullYear()}-${(`0${MyDate.getMonth() + 1}`).slice(-2)}-${(`0${MyDate.getDate()}`).slice(-2)}`
+    const formatDate = (date) => `${date.getFullYear()}-${(`0${date.getMonth() + 1}`).slice(-2)}-${(`0${date.getDate()}`).slice(-2)}`
 
     try {
       const response = await fetch('http://localhost:5000/api/get-schedule', {
@@ -97,11 +140,13 @@ export default function Index() {
           editable: false,
           extendedProps: {
             description: `Instruction Type: ${course.instruction_type}\nInstruction Method: ${course.instruction_method}\nCRN: ${course.crn}\nInstructor: ${course.instructor}`,
+            startTime: `${formatDate(course.start_date)}T${course.start_time}`,
+            endTime: `${formatDate(course.start_date)}T${course.end_time}`,
           },
           backgroundColor: '#FBBC04',
           duration,
           rrule: {
-            freq: 'weekly',
+            freq: RRule.WEEKLY,
             interval: 1,
             byweekday: course.days.match(/([A-Z]?[^A-Z]*)/g).slice(0, -1).map((day) => rruleDays[day]),
             dtstart: `${formatDate(course.start_date)}T${course.start_time}`,
@@ -265,6 +310,9 @@ export default function Index() {
             </table>
             <button onClick={handleSubmit} className="shadow bg-gray-500 hover:bg-gray-400 focus:shadow-outline focus:outline-none text-white font-bold py-2 px-4 m-2 rounded" type="button">
               Submit
+            </button>
+            <button onClick={exportEvents} className="shadow bg-gray-500 hover:bg-gray-400 focus:shadow-outline focus:outline-none text-white font-bold py-2 px-4 m-2 rounded" type="button">
+              Export as ICS File
             </button>
           </div>
           <div className="p-8">
