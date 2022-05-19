@@ -232,7 +232,7 @@ export default function Index() {
       type: 'checkbox',
       weightValue: constraints.prefer_longer_classes[0],
       weightOnChange: (e) => handleChange(e, 'prefer_longer_classes', 0, e.target.value),
-      inputLabel: 'Enabled?',
+      inputLabel: 'Prefer longer classes',
       inputValue: constraints.prefer_longer_classes[1],
       inputOnChange: (e) => handleChange(e, 'prefer_longer_classes', 1, e.target.checked),
     },
@@ -293,7 +293,7 @@ export default function Index() {
                             type="checkbox"
                             checked={input.inputValue}
                             onChange={input.inputOnChange}
-                          /> Enabled?
+                          /> {input.inputValue ? 'Prefer longer classes' : 'Prefer shorter classes'}
                         </>
                       )}
                       {input.type === 'number' && (
