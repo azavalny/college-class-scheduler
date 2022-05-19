@@ -7,12 +7,9 @@ import timeGridPlugin from '@fullcalendar/timegrid'
 import interactionPlugin from '@fullcalendar/interaction'
 import Navbar from './Navbar'
 import CourseSelector from './CourseSelector'
+import { Bars } from 'react-loading-icons'
 
 const ics = require('ics')
-
-// TODO
-// - make sure request does not timeout
-// - add fuzzy finding for courses
 
 export default function Index() {
   const [events, setEvents] = useState([]);
@@ -41,7 +38,6 @@ export default function Index() {
         recurrenceRule: (new RRule(rrule)).toString()
       }
     })
-    // console.log(icsFormattedEvents)
     const { error: e, value: icsContents } = ics.createEvents(icsFormattedEvents)
     if (e) {
       console.log(e)
@@ -156,16 +152,13 @@ export default function Index() {
       })
       setEvents(events);
       setLoading(false);
-      // let calendarApi = calendarRef.current.getApi()
-      // calendarApi.gotoDate(data.schedule[0].start_date) // TODO
-    } catch (error) {
-      console.log(error);
+    } catch (e) {
+      console.log(e);
     }
   }
 
   const handleEventClick = (info) => {
     if (info.event.extendedProps.description) {
-      // console.log('Part of schedule')
       return
     }
     if (info.event.title === 'Busy') {
@@ -248,12 +241,17 @@ export default function Index() {
     },
   ]
 
-  if (loading) return <>Loading...</>
-
   return (
     <>
-      <div className="">
+      <div>
         <Navbar />
+        {loading && (
+          <div className="my-2">
+              <Bars fill="#06bcee" className="mx-auto" />
+            <p className="p-2 text-xl">Loading...</p>
+          </div>
+        )}
+        {!loading && (
         <div className="container mx-auto mt-4">
           <span className="text-2xl">
             Preferences
@@ -339,6 +337,7 @@ export default function Index() {
             />
           </div>
         </div>
+        )}
       </div>
     </>
   );
