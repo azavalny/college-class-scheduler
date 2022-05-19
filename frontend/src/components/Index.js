@@ -18,7 +18,7 @@ export default function Index() {
     prefer_longer_classes: [10, false],
     preferred_class_gap_interval: [10, 60],
   });
-  const [courses, setCourses] = useState('CS 171,CI 102,CS 164,ENGL 103,MATH 123');
+  const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(false);
   const calendarRef = useRef(null);
 
@@ -84,9 +84,18 @@ export default function Index() {
       window.alert('Preferred class gap interval must be between ' + inputs[2].min + ' and ' + inputs[2].max)
       return
     }
+    // Parse courses
+    const formattedCourses = courses.map((course) => (course.name.split(":")[0])).join(",")
+    // Validate at least 1 course
+    if (formattedCourses === '') {
+      setLoading(false);
+      // eslint-disable-next-line
+      window.alert('Please select at least 1 course')
+      return
+    }
 
     const userData = {
-      courses: courses.split(','),
+      courses: formattedCourses.split(','),
       constraints: parsedConstraints,
     }
 
@@ -257,7 +266,7 @@ export default function Index() {
             Preferences
           </span>
           <div> {/* Inputs Container */}
-            <CourseSelector />
+            <CourseSelector courses={courses} setCourses={setCourses} />
             <table className="table-auto border-solid mx-auto">
               <thead>
                 <tr>

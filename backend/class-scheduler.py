@@ -124,6 +124,7 @@ def get_schedule():
 def get_courses():
     conn = sqlite3.connect("./data/courses.db")
     q = conn.cursor()
-    q.execute(f"SELECT subject_code, course_number, course_title FROM courses")
+    q.execute(f"SELECT DISTINCT subject_code, course_number, course_title FROM courses")
     all_courses = q.fetchall()
+    print(all_courses)
     return json.dumps(all_courses)
