@@ -67,7 +67,7 @@ export default function Index() {
     const formatDate = (MyDate) => `${MyDate.getFullYear()}-${(`0${MyDate.getMonth() + 1}`).slice(-2)}-${(`0${MyDate.getDate()}`).slice(-2)}`
 
     try {
-      const response = await fetch('http://localhost:5000/api/get-schedule', {
+      const response = await fetch('http://localhost:5000/api/schedule', {
         mode: 'cors',
         method: 'POST',
         headers: {

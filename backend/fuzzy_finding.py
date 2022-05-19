@@ -1,10 +1,9 @@
 import sqlite3
 from thefuzz import fuzz
 
-def main(courseTitle):
-    conn = sqlite3.connect("data\courses.db")
-    title = courseTitle
-    return getCoursesAndInfo(title, conn)
+def main(course_title):
+    conn = sqlite3.connect("./data/courses.db")
+    return getCoursesAndInfo(course_title, conn)
 
 def getCoursesAndInfo(title, conn):
     """Returns course information of courses that share the same title as inputted. If no matches are found, fuzzy finding is implemented to look for the course with the most similar title to what the user entered"""

@@ -4,7 +4,6 @@ from flask import request
 from flask_cors import CORS
 from src.algorithm import algorithm
 from src.time_intervals import parse_time
-import fuzzy_finding
 import sqlite3
 import json
 
@@ -57,7 +56,7 @@ def format_schedule(schedule):
         }
     return [parse_class(course) for course in schedule]
 
-@app.route('/api/get-schedule', methods=['POST'])
+@app.route('/api/schedule', methods=['POST'])
 def get_schedule():
     data = request.get_json()
     courses = data['courses']
@@ -121,10 +120,10 @@ def get_schedule():
         "schedule": format_schedule(schedule),
     }
 
-@app.route('/api/get-all-courses', methods=['GET','POST'])
-def get_allcourses():
-    conn = sqlite3.connect("data\courses.db")
+@app.route('/api/courses', methods=['GET','POST'])
+def get_courses():
+    conn = sqlite3.connect("./data/courses.db")
     q = conn.cursor()
     q.execute(f"SELECT subject_code, course_number, course_title FROM courses")
-    allCourses = q.fetchall()
-    return json.dumps(allCourses) # [0][0] + " "+ allCourses[0][1]
+    all_courses = q.fetchall()
+    return json.dumps(all_courses)
