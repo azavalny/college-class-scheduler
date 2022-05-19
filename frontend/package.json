@@ -9,7 +9,10 @@
     "eject": "react-scripts eject",
     "lint": "eslint --fix --ext .js './src/**/*.js'",
     "dev": "npm run start & cd ../backend && source venv/bin/activate && flask run",
-    "backend": "cd ../backend && source venv/bin/activate && flask run"
+    "backend": "cd ../backend && source venv/bin/activate && flask run",
+    "winStart": "set \"GENERATE_SOURCEMAP=false\" && react-scripts start",
+    "winBackend": "cd /backend && source venv/bin/activate && flask run",
+    "winFlask": "cd .. backend flask run"
   },
   "dependencies": {
     "@fullcalendar/daygrid": "^5.11.0",
@@ -27,6 +30,7 @@
     "react-loading-icons": "^1.1.0",
     "react-router-dom": "^6.3.0",
     "react-scripts": "5.0.0",
+    "react-tag-autocomplete": "^6.3.0",
     "rrule": "^2.6.9",
     "web-vitals": "^2.1.4"
   },

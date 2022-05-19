@@ -18,7 +18,7 @@ export default function Index() {
     prefer_longer_classes: [10, false],
     preferred_class_gap_interval: [10, 60],
   });
-  const [courses, setCourses] = useState('CS 171,CI 102,CS 164,ENGL 103,MATH 123');
+  const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(false);
   const calendarRef = useRef(null);
 
@@ -58,14 +58,14 @@ export default function Index() {
     let total = 0
     Object.keys(parsedConstraints).forEach((key) => {
       parsedConstraints[key][0] = parseFloat(parsedConstraints[key][0]) / 100
-      if (isNaN(parsedConstraints[key][0])) {
+      if (Number.isNaN(parsedConstraints[key][0])) {
         setLoading(false);
-        window.alert('Please enter a valid number for ' + key)
+        alert(`Please enter a valid number for ${key}`) // eslint-disable-line no-alert
         return
       }
       if (parsedConstraints[key][0] < 0) {
         setLoading(false);
-        window.alert('Please enter a positive number for ' + key)
+        alert(`Please enter a positive number for ${key}`) // eslint-disable-line no-alert
         return
       }
       total += parsedConstraints[key][0]
@@ -84,9 +84,18 @@ export default function Index() {
       window.alert('Preferred class gap interval must be between ' + inputs[2].min + ' and ' + inputs[2].max)
       return
     }
+    // Parse courses
+    const formattedCourses = courses.map((course) => (course.name.split(":")[0])).join(",")
+    // Validate at least 1 course
+    if (formattedCourses === '') {
+      setLoading(false);
+      // eslint-disable-next-line
+      window.alert('Please select at least 1 course')
+      return
+    }
 
     const userData = {
-      courses: courses.split(','),
+      courses: formattedCourses.split(','),
       constraints: parsedConstraints,
     }
 
@@ -113,7 +122,7 @@ export default function Index() {
     const formatDate = (date) => `${date.getFullYear()}-${(`0${date.getMonth() + 1}`).slice(-2)}-${(`0${date.getDate()}`).slice(-2)}`
 
     try {
-      const response = await fetch('http://localhost:5000/api/get-schedule', {
+      const response = await fetch('http://localhost:5000/api/schedule', {
         mode: 'cors',
         method: 'POST',
         headers: {
@@ -223,7 +232,7 @@ export default function Index() {
       type: 'checkbox',
       weightValue: constraints.prefer_longer_classes[0],
       weightOnChange: (e) => handleChange(e, 'prefer_longer_classes', 0, e.target.value),
-      inputLabel: 'Enabled?',
+      inputLabel: 'Prefer longer classes',
       inputValue: constraints.prefer_longer_classes[1],
       inputOnChange: (e) => handleChange(e, 'prefer_longer_classes', 1, e.target.checked),
     },
@@ -237,7 +246,7 @@ export default function Index() {
       weightValue: constraints.preferred_class_gap_interval[0],
       weightOnChange: (e) => handleChange(e, 'preferred_class_gap_interval', 0, e.target.value),
       inputValue: constraints.preferred_class_gap_interval[1],
-      inputOnChange: (e) => handleChange(e, 'preferred_class_gap_interval', 1, e.target.value)
+      inputOnChange: (e) => handleChange(e, 'preferred_class_gap_interval', 1, e.target.value),
     },
   ]
 
@@ -257,13 +266,12 @@ export default function Index() {
             Preferences
           </span>
           <div> {/* Inputs Container */}
-            <CourseSelector courses={courses} setCourses={setCourses} inputStyles={inputStyles} />
+            <CourseSelector courses={courses} setCourses={setCourses} />
             <table className="table-auto border-solid mx-auto">
               <thead>
                 <tr>
                   <th>Constraint</th>
                   <th>Weight</th>
-                  <th></th>
                 </tr>
               </thead>
               <tbody>
@@ -285,7 +293,7 @@ export default function Index() {
                             type="checkbox"
                             checked={input.inputValue}
                             onChange={input.inputOnChange}
-                          /> Enabled?
+                          /> {input.inputValue ? 'Prefer longer classes' : 'Prefer shorter classes'}
                         </>
                       )}
                       {input.type === 'number' && (
@@ -333,7 +341,7 @@ export default function Index() {
               select={handleSelect}
               eventColor="#808080"
               scrollTime="06:00:00"
-              initialDate={new Date("2021-10-01")}
+              initialDate={new Date('2021-10-01')}
             />
           </div>
         </div>

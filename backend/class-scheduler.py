@@ -4,6 +4,8 @@ from flask import request
 from flask_cors import CORS
 from src.algorithm import algorithm
 from src.time_intervals import parse_time
+import sqlite3
+import json
 
 app = Flask(__name__)
 CORS(app)
@@ -54,7 +56,7 @@ def format_schedule(schedule):
         }
     return [parse_class(course) for course in schedule]
 
-@app.route('/api/get-schedule', methods=['POST'])
+@app.route('/api/schedule', methods=['POST'])
 def get_schedule():
     data = request.get_json()
     courses = data['courses']
@@ -117,3 +119,12 @@ def get_schedule():
     return {
         "schedule": format_schedule(schedule),
     }
+
+@app.route('/api/courses', methods=['GET','POST'])
+def get_courses():
+    conn = sqlite3.connect("./data/courses.db")
+    q = conn.cursor()
+    q.execute(f"SELECT DISTINCT subject_code, course_number, course_title FROM courses")
+    all_courses = q.fetchall()
+    print(all_courses)
+    return json.dumps(all_courses)
