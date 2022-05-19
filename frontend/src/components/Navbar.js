@@ -19,12 +19,12 @@ export default function Navbar() {
         >
           About Us
         </NavLink>
-        <NavLink
+      {/*<NavLink
           to="/report-bug"
           className="text-lg no-underline text-grey-darkest hover:text-blue-dark ml-2"
         >
           Report a Bug
-        </NavLink>
+        </NavLink>*/}
       </div>
     </nav>
   );

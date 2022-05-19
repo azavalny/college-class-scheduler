@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react'
+import { RRule } from 'rrule'
 import FullCalendar from '@fullcalendar/react'
 import rrulePlugin from '@fullcalendar/rrule'
 import dayGridPlugin from '@fullcalendar/daygrid'
@@ -6,9 +7,9 @@ import timeGridPlugin from '@fullcalendar/timegrid'
 import interactionPlugin from '@fullcalendar/interaction'
 import Navbar from './Navbar'
 import CourseSelector from './CourseSelector'
+import { Bars } from 'react-loading-icons'
 
-// TODO
-// - make sure request does not timeout
+const ics = require('ics')
 
 export default function Index() {
   const [events, setEvents] = useState([]);
@@ -18,25 +19,59 @@ export default function Index() {
     preferred_class_gap_interval: [10, 60],
   });
   const [courses, setCourses] = useState('CS 171,CI 102,CS 164,ENGL 103,MATH 123');
+  const [loading, setLoading] = useState(false);
   const calendarRef = useRef(null);
 
+  const exportEvents = () => {
+    const icsFormattedEvents = events.map((event) => {
+      const { title, extendedProps, rrule } = event
+      rrule.dtstart = new Date(rrule.dtstart)
+      rrule.until = new Date(rrule.until)
+      const formatDate = (date) => [date.getFullYear(), date.getMonth()+1, date.getDate(), date.getHours(), date.getMinutes()]
+      const start = formatDate(new Date(extendedProps.startTime))
+      const end = formatDate(new Date(extendedProps.endTime))
+      return {
+        title,
+        description: extendedProps.description,
+        start,
+        end,
+        recurrenceRule: (new RRule(rrule)).toString()
+      }
+    })
+    const { error: e, value: icsContents } = ics.createEvents(icsFormattedEvents)
+    if (e) {
+      console.log(e)
+      return e
+    }
+    const blob = new Blob([icsContents], { type: 'text/calendar;charset=utf-8' });
+    const filename = 'class-scheduler'
+    const link = document.createElement('a');
+    link.href = window.URL.createObjectURL(blob);
+    link.download = `${filename}-${+new Date()}.ics`;
+    link.click();
+  }
+
   const handleSubmit = async () => {
+    setLoading(true);
     // Convert to floats
     const parsedConstraints = JSON.parse(JSON.stringify(constraints))
     let total = 0
     Object.keys(parsedConstraints).forEach((key) => {
       parsedConstraints[key][0] = parseFloat(parsedConstraints[key][0]) / 100
       if (Number.isNaN(parsedConstraints[key][0])) {
+        setLoading(false);
         alert(`Please enter a valid number for ${key}`) // eslint-disable-line no-alert
         return
       }
       if (parsedConstraints[key][0] < 0) {
+        setLoading(false);
         alert(`Please enter a positive number for ${key}`) // eslint-disable-line no-alert
         return
       }
       total += parsedConstraints[key][0]
     })
     if (total !== 1) {
+      setLoading(false);
       // eslint-disable-next-line
       window.alert('Constraints must add up to 100%')
       return
@@ -44,6 +79,7 @@ export default function Index() {
     parsedConstraints.no_classes_during_time_interval[1] = events.filter((event) => event.title === 'Busy').map((a) => [a.start, a.end])
     // Validate preferred_class_gap_interval
     if (parsedConstraints.preferred_class_gap_interval[1] > inputs[2].max || parsedConstraints.preferred_class_gap_interval[1] < inputs[2].min) {
+      setLoading(false);
       // eslint-disable-next-line
       window.alert('Preferred class gap interval must be between ' + inputs[2].min + ' and ' + inputs[2].max)
       return
@@ -54,17 +90,27 @@ export default function Index() {
       constraints: parsedConstraints,
     }
 
+    // const rruleDays = {
+    //   Su: 'su',
+    //   M: 'mo',
+    //   T: 'tu',
+    //   W: 'we',
+    //   R: 'th',
+    //   F: 'fr',
+    //   S: 'sa',
+    // }
+
     const rruleDays = {
-      Su: 'su',
-      M: 'mo',
-      T: 'tu',
-      W: 'we',
-      Th: 'th',
-      F: 'fr',
-      S: 'sa',
+      Su: RRule.SU,
+      M:  RRule.MO,
+      T:  RRule.TU,
+      W:  RRule.WE,
+      R:  RRule.TH,
+      F:  RRule.FR,
+      S:  RRule.SA,
     }
 
-    const formatDate = (MyDate) => `${MyDate.getFullYear()}-${(`0${MyDate.getMonth() + 1}`).slice(-2)}-${(`0${MyDate.getDate()}`).slice(-2)}`
+    const formatDate = (date) => `${date.getFullYear()}-${(`0${date.getMonth() + 1}`).slice(-2)}-${(`0${date.getDate()}`).slice(-2)}`
 
     try {
       const response = await fetch('http://localhost:5000/api/schedule', {
@@ -90,11 +136,13 @@ export default function Index() {
           editable: false,
           extendedProps: {
             description: `Instruction Type: ${course.instruction_type}\nInstruction Method: ${course.instruction_method}\nCRN: ${course.crn}\nInstructor: ${course.instructor}`,
+            startTime: `${formatDate(course.start_date)}T${course.start_time}`,
+            endTime: `${formatDate(course.start_date)}T${course.end_time}`,
           },
           backgroundColor: '#FBBC04',
           duration,
           rrule: {
-            freq: 'weekly',
+            freq: RRule.WEEKLY,
             interval: 1,
             byweekday: course.days.match(/([A-Z]?[^A-Z]*)/g).slice(0, -1).map((day) => rruleDays[day]),
             dtstart: `${formatDate(course.start_date)}T${course.start_time}`,
@@ -103,16 +151,14 @@ export default function Index() {
         }
       })
       setEvents(events);
-      // let calendarApi = calendarRef.current.getApi()
-      // calendarApi.gotoDate(data.schedule[0].start_date) // TODO
-    } catch (error) {
-      console.log(error);
+      setLoading(false);
+    } catch (e) {
+      console.log(e);
     }
   }
 
   const handleEventClick = (info) => {
     if (info.event.extendedProps.description) {
-      // console.log('Part of schedule')
       return
     }
     if (info.event.title === 'Busy') {
@@ -197,8 +243,15 @@ export default function Index() {
 
   return (
     <>
-      <div className="">
+      <div>
         <Navbar />
+        {loading && (
+          <div className="my-2">
+              <Bars fill="#06bcee" className="mx-auto" />
+            <p className="p-2 text-xl">Loading...</p>
+          </div>
+        )}
+        {!loading && (
         <div className="container mx-auto mt-4">
           <span className="text-2xl">
             Preferences
@@ -255,6 +308,9 @@ export default function Index() {
             <button onClick={handleSubmit} className="shadow bg-gray-500 hover:bg-gray-400 focus:shadow-outline focus:outline-none text-white font-bold py-2 px-4 m-2 rounded" type="button">
               Submit
             </button>
+            <button onClick={exportEvents} className="shadow bg-gray-500 hover:bg-gray-400 focus:shadow-outline focus:outline-none text-white font-bold py-2 px-4 m-2 rounded" type="button">
+              Export as ICS File
+            </button>
           </div>
           <div className="p-8">
             <FullCalendar
@@ -280,6 +336,7 @@ export default function Index() {
             />
           </div>
         </div>
+        )}
       </div>
     </>
   );
