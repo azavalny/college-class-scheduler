@@ -9,7 +9,6 @@ import CourseSelector from './CourseSelector'
 
 // TODO
 // - make sure request does not timeout
-// - add fuzzy finding for courses
 
 export default function Index() {
   const [events, setEvents] = useState([]);
@@ -27,12 +26,12 @@ export default function Index() {
     let total = 0
     Object.keys(parsedConstraints).forEach((key) => {
       parsedConstraints[key][0] = parseFloat(parsedConstraints[key][0]) / 100
-      if (isNaN(parsedConstraints[key][0])) {
-        window.alert('Please enter a valid number for ' + key)
+      if (Number.isNaN(parsedConstraints[key][0])) {
+        alert(`Please enter a valid number for ${key}`) // eslint-disable-line no-alert
         return
       }
       if (parsedConstraints[key][0] < 0) {
-        window.alert('Please enter a positive number for ' + key)
+        alert(`Please enter a positive number for ${key}`) // eslint-disable-line no-alert
         return
       }
       total += parsedConstraints[key][0]
@@ -104,7 +103,7 @@ export default function Index() {
         }
       })
       setEvents(events);
-      let calendarApi = calendarRef.current.getApi()
+      // let calendarApi = calendarRef.current.getApi()
       // calendarApi.gotoDate(data.schedule[0].start_date) // TODO
     } catch (error) {
       console.log(error);
@@ -192,7 +191,7 @@ export default function Index() {
       weightValue: constraints.preferred_class_gap_interval[0],
       weightOnChange: (e) => handleChange(e, 'preferred_class_gap_interval', 0, e.target.value),
       inputValue: constraints.preferred_class_gap_interval[1],
-      inputOnChange: (e) => handleChange(e, 'preferred_class_gap_interval', 1, e.target.value)
+      inputOnChange: (e) => handleChange(e, 'preferred_class_gap_interval', 1, e.target.value),
     },
   ]
 
@@ -205,13 +204,12 @@ export default function Index() {
             Preferences
           </span>
           <div> {/* Inputs Container */}
-            <CourseSelector courses={courses} setCourses={setCourses} inputStyles={inputStyles} />
+            <CourseSelector />
             <table className="table-auto border-solid mx-auto">
               <thead>
                 <tr>
                   <th>Constraint</th>
                   <th>Weight</th>
-                  <th></th>
                 </tr>
               </thead>
               <tbody>
@@ -278,7 +276,7 @@ export default function Index() {
               select={handleSelect}
               eventColor="#808080"
               scrollTime="06:00:00"
-              initialDate={new Date("2021-10-01")}
+              initialDate={new Date('2021-10-01')}
             />
           </div>
         </div>
