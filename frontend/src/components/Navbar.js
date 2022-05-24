@@ -14,17 +14,23 @@ export default function Navbar() {
       </div>
       <div>
         <NavLink
+          to="/"
+          className="text-lg no-underline text-grey-darkest hover:text-blue-dark ml-2"
+        >
+          Home
+        </NavLink>
+        <NavLink
+          to="/instructions"
+          className="text-lg no-underline text-grey-darkest hover:text-blue-dark ml-2"
+        >
+          Instructions
+        </NavLink>
+        <NavLink
           to="/about"
           className="text-lg no-underline text-grey-darkest hover:text-blue-dark ml-2"
         >
           About Us
         </NavLink>
-      {/*<NavLink
-          to="/report-bug"
-          className="text-lg no-underline text-grey-darkest hover:text-blue-dark ml-2"
-        >
-          Report a Bug
-        </NavLink>*/}
       </div>
     </nav>
   );
