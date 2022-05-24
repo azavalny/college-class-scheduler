@@ -44,7 +44,7 @@ export default function Instructions() {
                 />
                 <br />
                 <br />
-                Then, click and drag on the calendar to add the times in which
+                Then, click the button today at the top left of the calendar to update it to today's date. Pressing the arrow buttons will allow you to navigate between days, weeks or months depending on which of the 3 buttons on the top right of the calendar are pressed will give different views. Click and drag on the calendar to add the times in which you're busy for other commitments such as work, clubs, sports, etc.
                 you're busy for other commitments such as work, clubs, sports,
                 etc.
                 <br />
