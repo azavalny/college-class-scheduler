@@ -5,9 +5,9 @@ import rrulePlugin from '@fullcalendar/rrule'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import timeGridPlugin from '@fullcalendar/timegrid'
 import interactionPlugin from '@fullcalendar/interaction'
+import { Bars } from 'react-loading-icons'
 import Navbar from './Navbar'
 import CourseSelector from './CourseSelector'
-import { Bars } from 'react-loading-icons'
 
 const ics = require('ics')
 
@@ -22,12 +22,13 @@ export default function Index() {
   const [loading, setLoading] = useState(false);
   const calendarRef = useRef(null);
 
+  // eslint-disable-next-line consistent-return
   const exportEvents = () => {
     const icsFormattedEvents = events.map((event) => {
       const { title, extendedProps, rrule } = event
       rrule.dtstart = new Date(rrule.dtstart)
       rrule.until = new Date(rrule.until)
-      const formatDate = (date) => [date.getFullYear(), date.getMonth()+1, date.getDate(), date.getHours(), date.getMinutes()]
+      const formatDate = (date) => [date.getFullYear(), date.getMonth() + 1, date.getDate(), date.getHours(), date.getMinutes()]
       const start = formatDate(new Date(extendedProps.startTime))
       const end = formatDate(new Date(extendedProps.endTime))
       return {
@@ -35,7 +36,7 @@ export default function Index() {
         description: extendedProps.description,
         start,
         end,
-        recurrenceRule: (new RRule(rrule)).toString()
+        recurrenceRule: (new RRule(rrule)).toString(),
       }
     })
     const { error: e, value: icsContents } = ics.createEvents(icsFormattedEvents)
@@ -111,12 +112,12 @@ export default function Index() {
 
     const rruleDays = {
       Su: RRule.SU,
-      M:  RRule.MO,
-      T:  RRule.TU,
-      W:  RRule.WE,
-      R:  RRule.TH,
-      F:  RRule.FR,
-      S:  RRule.SA,
+      M: RRule.MO,
+      T: RRule.TU,
+      W: RRule.WE,
+      R: RRule.TH,
+      F: RRule.FR,
+      S: RRule.SA,
     }
 
     const formatDate = (date) => `${date.getFullYear()}-${(`0${date.getMonth() + 1}`).slice(-2)}-${(`0${date.getDate()}`).slice(-2)}`
@@ -216,19 +217,41 @@ export default function Index() {
 
   const inputStyles = 'bg-gray-200 appearance-none border-2 border-gray-200 rounded py-2 px-4 m-2 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-gray-500'
 
+  // Rate my Professor Button logic
+  function goToRateMyProfessor() {
+    const url = 'https://www.ratemyprofessors.com/search/teachers?query=';
+    const end = '&sid=1521';
+    const name = replaceSpacesWithPercentTwenty(document.getElementById('professorName').value);
+    window.open(url + name + end);
+  }
+
+  function replaceSpacesWithPercentTwenty(s) {
+    let newString = '';
+    for (let i = 0; i < s.length; i += 1) {
+      if (s[i] === ' ') {
+        newString += '%20';
+      } else {
+        newString += s[i];
+      }
+    }
+    return newString
+  }
+
   const inputs = [
+    // Slider
     {
       key: 'no_classes_during_time_interval',
-      label: 'No classes during time interval',
+      label: 'No classes during my busy times on the calendar',
       min: 0,
       max: 100,
-      step: 1,
+      step: 5,
       weightValue: constraints.no_classes_during_time_interval[0],
       weightOnChange: (e) => handleChange(e, 'no_classes_during_time_interval', 0, e.target.value),
     },
+    // Longer classes checkbox
     {
       key: 'prefer_longer_classes',
-      label: 'Prefer longer classes',
+      label: 'I Prefer Longer classes',
       type: 'checkbox',
       weightValue: constraints.prefer_longer_classes[0],
       weightOnChange: (e) => handleChange(e, 'prefer_longer_classes', 0, e.target.value),
@@ -236,115 +259,156 @@ export default function Index() {
       inputValue: constraints.prefer_longer_classes[1],
       inputOnChange: (e) => handleChange(e, 'prefer_longer_classes', 1, e.target.checked),
     },
+    // Input time between classes
     {
       key: 'preferred_class_gap_interval',
-      label: 'Preferred class gap interval',
+      label: 'Time between classses',
       type: 'number',
       min: 0,
-      max: 180,
-      step: 1,
+      max: 100,
+      step: 5,
       weightValue: constraints.preferred_class_gap_interval[0],
       weightOnChange: (e) => handleChange(e, 'preferred_class_gap_interval', 0, e.target.value),
       inputValue: constraints.preferred_class_gap_interval[1],
       inputOnChange: (e) => handleChange(e, 'preferred_class_gap_interval', 1, e.target.value),
     },
   ]
-
   return (
     <>
       <div>
         <Navbar />
         {loading && (
           <div className="my-2">
-              <Bars fill="#06bcee" className="mx-auto" />
-            <p className="p-2 text-xl">Loading...</p>
+            <Bars fill="#06bcee" className="mx-auto" />
+            <p className="p-2 text-xl">Generating Schedule...</p>
           </div>
         )}
         {!loading && (
-        <div className="container mx-auto mt-4">
-          <span className="text-2xl">
-            Preferences
-          </span>
-          <div> {/* Inputs Container */}
-            <CourseSelector courses={courses} setCourses={setCourses} />
-            <table className="table-auto border-solid mx-auto">
-              <thead>
-                <tr>
-                  <th>Constraint</th>
-                  <th>Weight</th>
-                </tr>
-              </thead>
-              <tbody>
-                {inputs.map((input, i) => (
-                  <tr key={i}>
-                    <td>{input.label}</td>
-                    <td>
-                      <input
-                        type="number"
-                        className={inputStyles}
-                        value={input.weightValue}
-                        onChange={input.weightOnChange}
-                      />%
-                    </td>
-                    <td>
-                      {input.type === 'checkbox' && (
-                        <>
-                          <input
-                            type="checkbox"
-                            checked={input.inputValue}
-                            onChange={input.inputOnChange}
-                          /> {input.inputValue ? 'Prefer longer classes' : 'Prefer shorter classes'}
-                        </>
-                      )}
-                      {input.type === 'number' && (
-                        <>
-                          <input
-                            type="number"
-                            className={inputStyles}
-                            min={input.min}
-                            max={input.max}
-                            step={input.step}
-                            value={input.inputValue}
-                            onChange={input.inputOnChange}
-                          /> Minutes
-                        </>
-                      )}
-                    </td>
+          <div className="container mx-auto mt-4">
+            <br />
+            <span className="text-2xl">
+              Enter Your Courses
+            </span>
+            <br />
+            <br />
+            <span className="text-l">With their abbreviated names</span>
+            <div> {/* Inputs Container */}
+              <CourseSelector courses={courses} setCourses={setCourses} />
+              <br />
+              <br />
+              <span className="text-2xl">
+                Enter Your Schedule Preferences
+              </span>
+              <br />
+              <br />
+              <span className="text-l">Each of your preferences must add up to exactly 100%, and the weights are how much you care about a preference</span>
+              <br />
+              <br />
+              <table className="table-auto border-solid mx-auto">
+                <thead>
+                  <tr>
+                    <th>Preference</th>
+                    <th>Weight</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-            <button onClick={handleSubmit} className="shadow bg-gray-500 hover:bg-gray-400 focus:shadow-outline focus:outline-none text-white font-bold py-2 px-4 m-2 rounded" type="button">
-              Submit
-            </button>
-            <button onClick={exportEvents} className="shadow bg-gray-500 hover:bg-gray-400 focus:shadow-outline focus:outline-none text-white font-bold py-2 px-4 m-2 rounded" type="button">
-              Export as ICS File
-            </button>
+                </thead>
+                <tbody>
+
+                  {inputs.map((input, i) => (
+                    <tr key={i}>
+                      <td>{input.label}</td>
+                      <td>
+                        <input
+                          type="range"
+                          className={inputStyles}
+                          value={input.weightValue}
+                          onChange={input.weightOnChange}
+                          min={input.min}
+                          max={input.max}
+                        />
+                        <label>{input.weightValue}</label>%
+                      </td>
+                      <td>
+                        {input.type === 'checkbox' && (
+                          <>
+                            <input
+                              type="checkbox"
+                              checked={input.inputValue}
+                              onChange={input.inputOnChange}
+                            /> {input.inputValue ? 'I Prefer Shorter classes' : 'I Prefer Shorter classes'}
+                          </>
+                        )}
+                        {input.type === 'number' && (
+                          <>
+                            <input
+                              type="number"
+                              className={inputStyles}
+                              min={input.min}
+                              max={180}
+                              step={input.step}
+                              value={input.inputValue}
+                              onChange={input.inputOnChange}
+                            /> Minutes between classes
+                          </>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              <br />
+              <br />
+              <span className="text-2xl">Click and Drag on the Calendar Below to Indicate your Busy Times</span>
+              <br />
+              <br />
+              <span className="text-l">Drag the edge of each Busy Time to adjust the length, and click on a Busy Time to Delete it</span>
+              <br />
+              <br />
+              <br />
+              <span className="text-2xl">Click Submit to see your Schedule and Download it to add to your Google, Outlook, or Apple Calendar</span>
+              <br />
+              <br />
+              <button onClick={handleSubmit} className="shadow bg-gray-500 hover:bg-gray-400 focus:shadow-outline focus:outline-none text-white font-bold py-2 px-4 m-2 rounded" type="button">
+                Submit
+              </button>
+              <button onClick={exportEvents} className="shadow bg-gray-500 hover:bg-gray-400 focus:shadow-outline focus:outline-none text-white font-bold py-2 px-4 m-2 rounded" type="button">
+                Export as ICS File
+              </button>
+            </div>
+            <br />
+            <span className="text-2xl">Lookup the Reviews of the Professors chosen</span>
+            <br />
+            <br />
+            <br />
+            <input type="text" className="shadow appearance-none border rounded w-60 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="Enter Your Professor's Name" id="professorName" />
+            <br />
+            <button id="button" className="shadow bg-gray-500 hover:bg-gray-400 focus:shadow-outline focus:outline-none text-white font-bold py-2 px-4 m-2 rounded" onClick={goToRateMyProfessor}>Take me to RateMyProfessors</button>
+
+            <br />
+            <br />
+            <div className="p-8">
+              <FullCalendar
+                ref={calendarRef}
+                plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, rrulePlugin]}
+                initialView="timeGridWeek"
+                headerToolbar={{
+                  left: 'prev,next today',
+                  center: 'title',
+                  right: 'dayGridMonth,timeGridWeek,timeGridDay',
+                }}
+                editable
+                droppable
+                selectable
+                selectMirror
+                eventContent={renderEventContent}
+                eventClick={handleEventClick}
+                events={events}
+                select={handleSelect}
+                eventColor="#808080"
+                scrollTime="08:00:00"
+                initialDate={new Date()}
+              />
+            </div>
           </div>
-          <div className="p-8">
-            <FullCalendar
-              ref={calendarRef}
-              plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, rrulePlugin]}
-              initialView="timeGridWeek"
-              headerToolbar={{
-                left: 'prev,next today',
-                center: 'title',
-                right: 'dayGridMonth,timeGridWeek,timeGridDay',
-              }}
-              editable
-              droppable
-              selectable
-              selectMirror
-              eventContent={renderEventContent}
-              eventClick={handleEventClick}
-              events={events}
-              select={handleSelect}
-              eventColor="#808080"
-              scrollTime="06:00:00"
-              initialDate={new Date('2021-10-01')}
-            />
-          </div>
-        </div>
         )}
       </div>
     </>

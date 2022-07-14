@@ -1,1 +1,0 @@
-I'm Alex Zavalny, and I'm a first year computer science student studying at Drexel University. I've developed in Java and Python as the lead programmer for my high school robotics team, and am currently conducting research in the Drexel Society of Artificial Intelligence.

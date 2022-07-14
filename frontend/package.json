@@ -1,6 +1,7 @@
 {
   "name": "frontend",
   "version": "0.1.0",
+  "proxy": "https://quiet-woodland-58632.herokuapp.com/",
   "private": true,
   "scripts": {
     "start": "GENERATE_SOURCEMAP=false DISABLE_ESLINT_PLUGIN=true react-scripts start",
@@ -20,9 +21,11 @@
     "@fullcalendar/react": "^5.11.0",
     "@fullcalendar/rrule": "^5.11.0",
     "@fullcalendar/timegrid": "^5.11.0",
+    "@mui/material": "^5.8.5",
     "@testing-library/jest-dom": "^5.16.3",
     "@testing-library/react": "^12.1.4",
     "@testing-library/user-event": "^13.5.0",
+    "@material-ui" : "5.8.6",
     "ics": "^2.35.0",
     "moment": "^2.29.2",
     "react": "^18.0.0",

@@ -8,9 +8,9 @@ export default function Instructions() {
         <Navbar />
         <div className="container mx-auto">
           <div className="">
-            <h1 className="text-2xl text-left py-4">User Guide</h1>
+            <h1 className="text-2xl text-center py-4">User Guide for the Core Features</h1>
             <div className="flex flex-row">
-              <p className="text-left">
+              <p className="text-center">
                 <br />
                 Go to the url where the project is hosted, and enter the home
                 page. Then in the search bar, enter the abbreviated name of all
@@ -60,69 +60,18 @@ export default function Instructions() {
                 />
               </p>
             </div>
-            <h1 className="text-2xl text-left py-4">System Manual</h1>
-            <div className="flex flex-row">
-              <p className="text-left">
-                <p className="text-xl">Installation Guide</p>
-                <br />
-                Node.js must be installed on the user's machine in order to run
-                Node Package Manager commands (npm)
-                <br />
-                Once Node is installed, run the following command to install
-                react.js and all its dependencies > npx create-react-app my-app
-                <br />
-                Make sure the latest version of Python is installed, and to
-                confirm run this command on the command line to confirm the
-                version: > python
-                <br />
-                With python installed, run the following command to install
-                flask: > pip install flask
-                <br />
-                Download or clone the project repository onto your machine, and
-                in the root directory navigate to the frontend directory and
-                run: > npm run start
-                <br />
-                If the above command does not work, then it means you are on a
-                windows machine and will instead run: > npm run winStart
-                <br />
-                Then, open another terminal and go to the backend directory and
-                run: > flask run
-                <br />
-                Navigate to: <b>http://localhost:3000/</b> to view the project
-                <br /> <br />
-                <p className="text-xl"> Error messages and Troubleshooting </p>
-                <br />
-                If the{" "}
-                <b>
-                  'GENERATE_SOURCEMAP' is not recognized as an internal or
-                  external command, operable program or batch file.
-                </b>{" "}
-                error is thrown, then the user should run the frontend via the{" "}
-                <b>winStart</b> command.
-                <br /> <br />
-                If any errors occur in running the application in either the
-                frontend or backend, double check to make sure you are in the
-                correct directory (/frontend) for frontend and (/backend) for
-                backend.
-                <br /> <br />
-                If any issues occur during installation, double check that both
-                node and python are included in your environment variables and
-                that they can be run via the terminal from any folder.
-                <br /> <br />
-                <p className="text-xl">Contact</p>
-                <br />
-                If an undocumented question arises, feel free to contact the
-                developers of this software:
-                <ul>
-                  <li>- Shivang Patel: sp3699@drexel.edu</li>
-                  <li>- Alex Zavalny: az548@drexel.edu</li>
-                  <li>- Ryen Ling: rl826@drexel.edu</li>
-                  <li>- Siddarth Kampalli: sk3999@drexel.edu</li>
-                </ul>
-              </p>
-            </div>
             <br /> <br />
             <br /> <br />
+            <p className="text-xl">Contact</p>
+            <br />
+            If an undocumented question arises, feel free to contact the
+            developers of this software:
+            <ul>
+              <li>- Alex Zavalny: az548@drexel.edu</li>
+              <li>- Shivang Patel: sp3699@drexel.edu</li>
+              <li>- Ryen Ling: rl826@drexel.edu</li>
+              <li>- Siddarth Kampalli: sk3999@drexel.edu</li>
+            </ul>
           </div>
         </div>
       </div>

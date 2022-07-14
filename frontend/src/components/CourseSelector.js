@@ -1,3 +1,4 @@
+// eslint-disable-next-line object-curly-newline
 import React, { useState, useRef, useCallback, useEffect } from 'react'
 import ReactTags from 'react-tag-autocomplete'
 
@@ -41,7 +42,6 @@ export default function CourseSelector({ courses: tags, setCourses: setTags }) {
   return (
     <>
       <div className="container mx-auto mt-5">
-        <span className="text-xl">Enter Your Courses:</span>
         <ReactTags
           ref={reactTags}
           tags={tags}
