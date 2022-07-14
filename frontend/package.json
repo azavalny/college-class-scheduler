@@ -1,7 +1,7 @@
 {
   "name": "frontend",
   "version": "0.1.0",
-  "proxy": "https://quiet-woodland-58632.herokuapp.com/",
+  "proxy": "https://infinite-plateau-60311.herokuapp.com/",
   "private": true,
   "scripts": {
     "start": "GENERATE_SOURCEMAP=false DISABLE_ESLINT_PLUGIN=true react-scripts start",
