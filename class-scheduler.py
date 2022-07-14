@@ -7,7 +7,7 @@ from backend.src.time_intervals import parse_time
 import sqlite3
 import json
 
-app = Flask(__name__, static_folder='frontend/build')
+app = Flask(__name__, static_folder='frontend/build', static_url_path='')
 CORS(app)
 
 def format_schedule(schedule):
