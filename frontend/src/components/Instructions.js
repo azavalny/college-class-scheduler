@@ -8,12 +8,11 @@ export default function Instructions() {
         <Navbar />
         <div className="container mx-auto">
           <div className="">
-            <h1 className="text-2xl text-center py-4">User Guide for the Core Features</h1>
+            <h1 className="text-2xl text-center py-4">How to Use this App</h1>
             <div className="flex flex-row">
               <p className="text-center">
                 <br />
-                Go to the url where the project is hosted, and enter the home
-                page. Then in the search bar, enter the abbreviated name of all
+                In the search bar, enter the abbreviated name of all
                 your courses this term and their id's:
                 <img
                   src="./images/instructions/search.png"
@@ -64,13 +63,9 @@ export default function Instructions() {
             <br /> <br />
             <p className="text-xl">Contact</p>
             <br />
-            If an undocumented question arises, feel free to contact the
-            developers of this software:
+            If an undocumented question arises, feel free to contact me:
             <ul>
               <li>- Alex Zavalny: az548@drexel.edu</li>
-              <li>- Shivang Patel: sp3699@drexel.edu</li>
-              <li>- Ryen Ling: rl826@drexel.edu</li>
-              <li>- Siddarth Kampalli: sk3999@drexel.edu</li>
             </ul>
           </div>
         </div>

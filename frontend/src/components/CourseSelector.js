@@ -7,7 +7,7 @@ export default function CourseSelector({ courses: tags, setCourses: setTags }) {
   const [courseTitles, setCourseTitles] = useState([])
 
   const getCourseTitles = async () => {
-    const response = await fetch('http://localhost:5000/api/courses', {
+    const response = await fetch('http:http://www.drexelscheduler.com/api/courses', {
       mode: 'cors',
       method: 'GET',
       headers: {
