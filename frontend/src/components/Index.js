@@ -123,7 +123,7 @@ export default function Index() {
     const formatDate = (date) => `${date.getFullYear()}-${(`0${date.getMonth() + 1}`).slice(-2)}-${(`0${date.getDate()}`).slice(-2)}`
 
     try {
-      const response = await fetch('http://localhost:5000/api/schedule', {
+      const response = await fetch('https:/www.drexelscheduler.com/api/schedule', {
         mode: 'cors',
         method: 'POST',
         headers: {
