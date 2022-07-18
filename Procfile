@@ -1,1 +1,1 @@
-web: gunicorn class-scheduler:app
+web: gunicorn class-scheduler:app 
