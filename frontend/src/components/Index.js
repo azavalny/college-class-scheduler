@@ -364,6 +364,9 @@ export default function Index() {
               <span className="text-l">Drag the edge of each Busy Time to adjust the length, and click on a Busy Time to Delete it</span>
               <br />
               <br />
+              <span className="text-l">Mobile Users will tap and hold for 2 seconds to drag, and tap on a Busy Time to Delete it</span>
+              <br />
+              <br />
               <br />
               <span className="text-2xl">Click Submit to see your Schedule and Download it to add to your Google, Outlook, or Apple Calendar</span>
               <br />
@@ -377,7 +380,6 @@ export default function Index() {
             </div>
             <br />
             <span className="text-2xl">Lookup the Reviews of the Professors chosen</span>
-            <br />
             <br />
             <br />
             <input type="text" className="shadow appearance-none border rounded w-60 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="Enter Your Professor's Name" id="professorName" />
@@ -407,6 +409,7 @@ export default function Index() {
                 eventColor="#808080"
                 scrollTime="08:00:00"
                 initialDate={new Date()}
+                contentHeight={400}
               />
             </div>
           </div>

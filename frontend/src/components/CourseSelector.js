@@ -49,7 +49,7 @@ export default function CourseSelector({ courses: tags, setCourses: setTags }) {
           noSuggestionsText="No matching courses"
           onDelete={onDelete}
           onAddition={onAddition}
-          placeholderText="Enter an abbreviated course name"
+          placeholderText="Enter abbreviated name"
         />
       </div>
     </>
