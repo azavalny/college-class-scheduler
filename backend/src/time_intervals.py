@@ -27,10 +27,10 @@ def parse_time(date):
                 result.append(int(time[:2]) + 12)
         elif time[-2:] == "am":
             result.append(int(time[:2]))
-        if int(time[3:5]) == '':
-            continue
-        else:
+        try:
             result.append(int(time[3:5]))
+        except ValueError:
+            continue
     return result
 # parse_time('02:00 pm - 02:50 pm')
 
