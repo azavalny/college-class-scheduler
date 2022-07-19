@@ -43,6 +43,7 @@ def get_time_intervals(schedule):
             # Parse each time interval
             class_day = today + datetime.timedelta((classes_timedelta[day]-today.weekday()) % 7)
             parsed_times = parse_time(classes[9])
+            print(parsed_times)
             start = datetime.datetime(year=class_day.year, month=class_day.month, day=class_day.day, hour=parsed_times[0], minute=parsed_times[1])
             end = datetime.datetime(year=class_day.year, month=class_day.month, day=class_day.day, hour=parsed_times[2], minute=parsed_times[3])
             intervals.append([start, end])
