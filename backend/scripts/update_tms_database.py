@@ -2,7 +2,7 @@ import sqlite3
 import csv
 
 # Create table
-connection = sqlite3.connect("../data/courses.db")
+connection = sqlite3.connect("backend/data/courses.db")
 cursor = connection.cursor()
 cursor.execute(f"CREATE TABLE courses (term TEXT, subject_code TEXT, course_number TEXT, instruction_type TEXT, instruction_method TEXT, section TEXT, crn_url TEXT, crn TEXT, course_title TEXT, days TEXT, times TEXT, finals_day TEXT, finals_time TEXT, instructor TEXT)")
 

@@ -57,7 +57,7 @@ def algorithm(courses = None, constraints = None):
     # Open SQL connection
     #import os
     #print(os.getcwd())
-    connection = sqlite3.connect("./data/courses.db")
+    connection = sqlite3.connect("backend/data/courses.db")
     cursor = connection.cursor()
 
     # Get data
