@@ -27,10 +27,8 @@ def parse_time(date):
                 result.append(int(time[:2]) + 12)
         elif time[-2:] == "am":
             result.append(int(time[:2]))
-        try:
-            result.append(int(time[3:5]))
-        except ValueError:
-            result.append(time[3:5])
+
+        result.append(int(time[3:5]))
     return result
 # parse_time('02:00 pm - 02:50 pm')
 
@@ -38,12 +36,10 @@ def get_time_intervals(schedule):
     today = datetime.date.today()
     intervals = []
     for classes in schedule:
-        if classes[9] == "TBD": classes[9] = "S"
         for day in list(classes[9]):
             # Parse each time interval
             class_day = today + datetime.timedelta((classes_timedelta[day]-today.weekday()) % 7)
             parsed_times = parse_time(classes[9])
-            print(parsed_times)
             start = datetime.datetime(year=class_day.year, month=class_day.month, day=class_day.day, hour=parsed_times[0], minute=parsed_times[1])
             end = datetime.datetime(year=class_day.year, month=class_day.month, day=class_day.day, hour=parsed_times[2], minute=parsed_times[3])
             intervals.append([start, end])
