@@ -123,7 +123,7 @@ export default function Index() {
     const formatDate = (date) => `${date.getFullYear()}-${(`0${date.getMonth() + 1}`).slice(-2)}-${(`0${date.getDate()}`).slice(-2)}`
 
     try {
-      const response = await fetch('https:/www.drexelscheduler.com/api/schedule', {
+      const response = await fetch('/api/schedule', {
         mode: 'cors',
         method: 'POST',
         headers: {
@@ -266,7 +266,7 @@ export default function Index() {
       type: 'number',
       min: 0,
       max: 100,
-      step: 5,
+      step: 10,
       weightValue: constraints.preferred_class_gap_interval[0],
       weightOnChange: (e) => handleChange(e, 'preferred_class_gap_interval', 0, e.target.value),
       inputValue: constraints.preferred_class_gap_interval[1],
@@ -324,6 +324,7 @@ export default function Index() {
                           onChange={input.weightOnChange}
                           min={input.min}
                           max={input.max}
+                          step={10}
                         />
                         <label>{input.weightValue}</label>%
                       </td>
