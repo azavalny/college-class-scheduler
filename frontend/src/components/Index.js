@@ -301,14 +301,14 @@ export default function Index() {
               </span>
               <br />
               <br />
-              <span className="text-l">Each of your preferences must add up to exactly 100%, and the weights are how much you care about a preference</span>
+              <span className="text-l">Each of your preferences must add up to exactly 100%</span>
               <br />
               <br />
               <table className="table-auto border-solid mx-auto">
                 <thead>
                   <tr>
+                    <th> </th>
                     <th>Preference</th>
-                    <th>Weight</th>
                   </tr>
                 </thead>
                 <tbody>

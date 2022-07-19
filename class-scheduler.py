@@ -124,7 +124,7 @@ def get_schedule():
 @app.route('/api/courses', methods=['GET','POST'])
 @cross_origin()
 def get_courses():
-    conn = sqlite3.connect("./data/courses.db")
+    conn = sqlite3.connect("backend/data/courses.db")
     q = conn.cursor()
     q.execute(f"SELECT DISTINCT subject_code, course_number, course_title FROM courses")
     all_courses = q.fetchall()
