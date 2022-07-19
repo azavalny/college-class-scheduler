@@ -30,7 +30,7 @@ def parse_time(date):
         try:
             result.append(int(time[3:5]))
         except ValueError:
-            continue
+            result.append(time[3:5])
     return result
 # parse_time('02:00 pm - 02:50 pm')
 
