@@ -38,8 +38,8 @@ def get_time_intervals(schedule):
     today = datetime.date.today()
     intervals = []
     for classes in schedule:
-        if classes[8] == "TBD": classes[8] = "S"
-        for day in list(classes[8]):
+        if classes[9] == "TBD": classes[9] = "S"
+        for day in list(classes[9]):
             # Parse each time interval
             class_day = today + datetime.timedelta((classes_timedelta[day]-today.weekday()) % 7)
             parsed_times = parse_time(classes[9])
