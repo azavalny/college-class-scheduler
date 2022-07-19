@@ -4,7 +4,7 @@ import csv
 # Create table
 connection = sqlite3.connect("backend/data/courses.db")
 cursor = connection.cursor()
-cursor.execute(f"CREATE TABLE courses (term TEXT, subject_code TEXT, course_number TEXT, instruction_type TEXT, instruction_method TEXT, section TEXT, crn_url TEXT, crn TEXT, course_title TEXT, days TEXT, times TEXT, finals_day TEXT, finals_time TEXT, instructor TEXT)")
+cursor.execute(f"CREATE TABLE courses (term TEXT, subject_code TEXT, course_number TEXT, instruction_type TEXT, instruction_method TEXT, section TEXT, crn_url TEXT, crn TEXT, course_title TEXT, days TEXT, times TEXT, instructor TEXT)")
 
 terms = {
     "fall": "fall-tms.csv",
@@ -29,13 +29,11 @@ with open('backend/data/fall-tms.csv', newline='') as csvfile:
         course_title = row[7]
         days = row[8]
         times = row[9]
-        finals_day = row[10]
-        finals_time = row[11]
-        instructor = row[12]
+        instructor = row[10]
 
         # Insert table
-        sql = "INSERT INTO courses VALUES ((?), (?), (?), (?), (?), (?), (?), (?), (?), (?), (?), (?), (?), (?))"
-        cursor.execute(sql, ('fall', subject_code, course_number, instruction_type, instruction_method, section, crn_url, crn, course_title, days, times, finals_day, finals_time, instructor))
+        sql = "INSERT INTO courses VALUES ((?), (?), (?), (?), (?), (?), (?), (?), (?), (?), (?), (?))"
+        cursor.execute(sql, ('fall', subject_code, course_number, instruction_type, instruction_method, section, crn_url, crn, course_title, days, times, instructor))
 
 connection.commit()
 connection.close()
