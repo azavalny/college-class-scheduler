@@ -11,10 +11,10 @@ app = Flask(__name__, static_folder='frontend/build', static_url_path='')
 CORS(app)
 
 def format_schedule(schedule):
-    school_year = 2021
+    school_year = 2022
     term_start_and_end_dates = {
         'fall': {
-            'start': datetime.datetime(school_year, 9, 20),
+            'start': datetime.datetime(school_year, 9, 19),
             'end': datetime.datetime(school_year, 12, 4)
         },
         'winter': {
@@ -33,7 +33,7 @@ def format_schedule(schedule):
 
     def parse_class(course):
         term = 'fall'
-        times = parse_time(course[9])
+        times = parse_time(course[10])
         start_time = f'{times[0]:02}:{times[1]:02}:00'
         end_time = f'{times[2]:02}:{times[3]:02}:00'
         return {
@@ -48,15 +48,13 @@ def format_schedule(schedule):
             'days': course[8],
             'start_time': start_time,
             'end_time': end_time,
-            'finals_days': course[10],
-            'finals_times': course[11],
-            'instructor': course[12],
+            'instructor': course[10],
             'start_date': term_start_and_end_dates[term]['start'], # TODO: figure out which quarter and have preset variables with start and end date of term, 11 weeks apart
             'end_date': term_start_and_end_dates[term]['end'],
         }
     return [parse_class(course) for course in schedule]
 
-@app.route('/api/schedule', methods=['POST'])
+@app.route('/api/schedule', methods=['GET', 'POST'])
 @cross_origin()
 def get_schedule():
     data = request.get_json()
@@ -116,10 +114,41 @@ def get_schedule():
             '20469', 'Calculus III', 'MW', '06:00 pm - 07:50 pm', '', '',
             'Sergio Zefelippo']
        ]
-
+    for s in schedule:
+        print(s)
+    
     return {
-        "schedule": format_schedule(schedule),
+        "schedule": json.dumps(schedule)
     }
+    """
+    "schedule": {
+        "MATH 311":{ 
+            start_date: datetime.datetime(school_year, 9, 19) #fall 2022
+            end_date: datetime.datetime(school_year, 12, 4) #fall 2022
+            start_time: 04:00 pm
+            end_time: 04:50 pm
+            subject: MATH
+            days: F
+            course_number: 12919
+            section: 4
+            course_title: Probability and Stats
+                    }
+            "CS 265":{
+                ...
+            }
+    }
+
+    const events = data.schedule.map((course) => {
+        course.start_date = new Date(course.start_date)
+        course.end_date = new Date(course.end_date)
+        const start = new Date(`2022-04-01T${course.start_time}`)
+        const end = new Date(`2022-04-01T${course.end_time}`)
+        const duration = (end.getTime() - start.getTime()) || 0
+        return {
+          title: `${course.subject} ${course.course_number}-${course.section} ${course.course_title}`,
+          start: course.start_date, // '2022-04-16T12:30:00',
+          end: course.end_date, // '2022-04-16T13:30:00',
+    """
 
 @app.route('/api/courses', methods=['GET','POST'])
 @cross_origin()

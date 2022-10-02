@@ -123,7 +123,7 @@ export default function Index() {
     const formatDate = (date) => `${date.getFullYear()}-${(`0${date.getMonth() + 1}`).slice(-2)}-${(`0${date.getDate()}`).slice(-2)}`
 
     try {
-      const response = await fetch('/api/schedule', {
+      const response = await fetch('http://localhost:5000/api/schedule', {
         mode: 'cors',
         method: 'POST',
         headers: {
@@ -358,16 +358,6 @@ export default function Index() {
               </table>
               <br />
               <br />
-              <span className="text-2xl">Click and Drag on the Calendar Below to Indicate your Busy Times</span>
-              <br />
-              <br />
-              <span className="text-l">Drag the edge of each Busy Time to adjust the length, and click on a Busy Time to Delete it</span>
-              <br />
-              <br />
-              <span className="text-l">Mobile Users will tap and hold for 2 seconds to drag, and tap on a Busy Time to Delete it</span>
-              <br />
-              <br />
-              <br />
               <span className="text-2xl">Click Submit to see your Schedule and Download it to add to your Google, Outlook, or Apple Calendar</span>
               <br />
               <br />
@@ -385,7 +375,17 @@ export default function Index() {
             <input type="text" className="shadow appearance-none border rounded w-60 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="Enter Your Professor's Name" id="professorName" />
             <br />
             <button id="button" className="shadow bg-gray-500 hover:bg-gray-400 focus:shadow-outline focus:outline-none text-white font-bold py-2 px-4 m-2 rounded" onClick={goToRateMyProfessor}>Take me to RateMyProfessors</button>
-
+            <br />
+            <br />
+            <span className="text-2xl">Click and Drag on the Calendar Below to Indicate your Busy Times</span>
+            <br />
+            <br />
+            <span className="text-l">Drag the edge of each Busy Time to adjust the length, and click on a Busy Time to Delete it</span>
+            <br />
+            <br />
+            <span className="text-l">Mobile Users will tap and hold for 2 seconds to drag, and tap on a Busy Time to Delete it</span>
+            <br />
+            <br />
             <br />
             <br />
             <div className="p-8">
